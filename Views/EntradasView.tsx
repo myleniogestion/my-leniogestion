@@ -1085,8 +1085,8 @@ export default function EntradasView() {
     "Nombre Proveedor",
     "Nombre Producto",
     "Cantidad",
-    "Costo Unidad USD",
-    "Costo Unidad CUP",
+    "Costo Total USD",
+    "Costo Total CUP",
     "Fecha",
   ];
   const columnasMyDateTableTiendaModal = ["Nombre", "Cantidad"];
@@ -1101,8 +1101,8 @@ export default function EntradasView() {
     "Nombre Proveedor",
     "Nombre Producto",
     "Cantidad",
-    "Costo Unidad USD",
-    "Costo Unidad CUP",
+    "Costo Total USD",
+    "Costo Total CUP",
     "Fecha",
   ];
   const columnasMyDateTable = isMobile
