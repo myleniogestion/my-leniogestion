@@ -1829,7 +1829,7 @@ export default function EntradasView() {
                             fontSize: 16,
                           }}
                         >
-                          Modificar Entrada
+                          Ajustar Entrada
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -1867,8 +1867,7 @@ export default function EntradasView() {
                     )}
 
                   {/* Botón para eliminar proveedor */}
-                  {isPermisoEliminarEntrada &&
-                    modalEntradasDates?.id_entrada !== "" && (
+                  {false && (
                       <TouchableOpacity
                         style={{
                           backgroundColor: Colors.rojo_oscuro,
@@ -2734,7 +2733,7 @@ export default function EntradasView() {
                             fontSize: 16,
                           }}
                         >
-                          Modificar Entrada
+                          Ajustar Entrada
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -2771,8 +2770,7 @@ export default function EntradasView() {
                       </TouchableOpacity>
                     )}
                   {/* Botón para eliminar proveedor */}
-                  {isPermisoEliminarEntrada &&
-                    modalEntradasDates?.id_entrada !== "" && (
+                  {false && (
                       <TouchableOpacity
                         style={{
                           backgroundColor: Colors.rojo_oscuro,
