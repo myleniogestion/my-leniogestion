@@ -1595,6 +1595,57 @@ export default function UsuariosView() {
                   </View>
                 </View>
 
+                {/*Campos de detalles Salario y null */}
+                <View
+                  style={{
+                    width: "100%",
+                    justifyContent: "space-between", // Para separar los campos de forma uniforme
+                    alignItems: "center",
+                    flexDirection: "row",
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  {/* Campo salario_CUP */}
+                  <View style={{ width: "45%", marginLeft: "2%" }}>
+                    <Text style={styles.labelTextModalDesktop}>
+                      Salario diario en CUP
+                    </Text>
+                    <CustomTextImputSearch
+                      style={styles.textImputModal}
+                      cursorColor={Colors.azul_Oscuro}
+                      value={salario_CUPDetails}
+                      onChangeText={(text) => {
+                        // Permite solo números y un punto decimal
+                        const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                        // Asegura que solo haya un punto decimal
+                        const validNumericValue =
+                          numericValue.split(".").length > 2
+                            ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                            : numericValue;
+
+                        setsalario_CUPDetails(validNumericValue)
+                      }}
+                      editable={
+                        modalProveedoresDates?.id_proveedor === ""
+                          ? true
+                          : isPermisoModificarProveedor &&
+                            isPermisoModificarGerarquico
+                      }
+                      placeholder="Salario diario en CUP"
+                    />
+                  </View>
+
+                  {/* Campo null */}
+                  <View
+                    style={{
+                      width: "45%",
+                      marginLeft: "2%",
+                      marginRight: "2%",
+                    }}
+                  >
+                  </View>
+                </View>
+                
                 <View
                   style={{
                     width: "100%",

@@ -1686,12 +1686,59 @@ export default function EntradasView() {
                           numericValue.split(".").length > 2
                             ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
                             : numericValue;
-
+                    
                         setCostoUSDDetails(validNumericValue);
+                        const costoCUP = parseFloat(validNumericValue) * cambioMoneda;
+                        setCostoCUPDetails(costoCUP.toFixed(2));
                       }}
                       cursorColor={Colors.azul_Oscuro}
                       editable={isPermisoModificarEntrada ? true : false}
                       placeholder="Costo en USD"
+                    />
+                  </View>
+                </View>
+
+                {/*  */}
+                <View
+                  style={{
+                    width: "100%",
+                    justifyContent: "space-between", // Para separar los campos de forma uniforme
+                    alignItems: "center",
+                    flexDirection: "row",
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  <View style={{ width: "45%", marginLeft: "2%" }}>
+                  </View>
+
+                  {/* Campo Costo */}
+                  <View
+                    style={{
+                      width: "45%",
+                      marginLeft: "2%",
+                      marginRight: "2%",
+                    }}
+                  >
+                    <Text style={styles.labelTextModalMovil}>Costo total de la entrada en CUP</Text>
+                    <CustomTextImputSearch
+                      style={styles.textImputModal}
+                      value={costoCUPDetails}
+                      onChangeText={(text) => {
+                        // Permite solo números y un punto decimal
+                        const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                        // Asegura que solo haya un punto decimal
+                        const validNumericValue =
+                          numericValue.split(".").length > 2
+                            ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                            : numericValue;
+                    
+                        setCostoCUPDetails(validNumericValue);
+                        const costoUSD = parseFloat(validNumericValue) / cambioMoneda;
+                        setCostoUSDDetails(costoUSD.toFixed(5));
+                      }}
+                      cursorColor={Colors.azul_Oscuro}
+                      editable={isPermisoModificarEntrada ? true : false}
+                      placeholder="Costo en CUP"
                     />
                   </View>
                 </View>

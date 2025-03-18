@@ -1931,12 +1931,12 @@ export default function ProductosViwe() {
                       marginRight: "2%",
                     }}
                   >
-                    {isPermisoHistorialDeProveedores && (
+                    {(isPermisoHistorialDeProveedores && idProductoDetails !== "") && (
                       <Text style={styles.labelTextModalDesktop}>
                         Costo Promedio
                       </Text>
                     )}
-                    {isPermisoHistorialDeProveedores && (
+                    {(isPermisoHistorialDeProveedores && idProductoDetails !== "") && (
                       <CustomTextImputSearch
                         style={styles.textImputModal}
                         value={costoPromedio}
@@ -2899,12 +2899,12 @@ export default function ProductosViwe() {
                       marginRight: "2%",
                     }}
                   >
-                    {isPermisoHistorialDeProveedores && (
+                    {(isPermisoHistorialDeProveedores && idProductoDetails !== "") && (
                       <Text style={styles.labelTextModalDesktop}>
                         Costo Promedio
                       </Text>
                     )}
-                    {isPermisoHistorialDeProveedores && (
+                    {(isPermisoHistorialDeProveedores && idProductoDetails !== "") && (
                       <CustomTextImputSearch
                         style={styles.textImputModal}
                         value={costoPromedio}

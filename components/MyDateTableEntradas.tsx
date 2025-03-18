@@ -189,7 +189,7 @@ export const MyDateTableEntradas: React.FC<Props> = ({
     items.forEach((item) =>{
       sumaCostos += parseFloat(item.costo)
     })
-    mensaje += `${sumaCostos} USD.`
+    mensaje += `${sumaCostos.toFixed(5)} USD   CUP: ${(sumaCostos * cambioMoneda).toFixed(2)}.`
     return mensaje
   }
   const handleChangePage = (newPage: number) => {
