@@ -345,8 +345,8 @@ export default function ProductosViwe() {
               sku: index.Sku,
               Nombre: index.nombre,
               Existencia: index.cantidad_total,
-              Precio_USD: parseFloat(index.precio).toFixed(2),
-              Precio_CUP: (parseFloat(index.precio) * cambioMoneda).toFixed(2),
+              Precio_USD: parseFloat(index.precio).toFixed(5),
+              Precio_CUP: (parseFloat(index.precio) * cambioMoneda).toFixed(0),
               Precio_Mayorista: index.precio_empresa,
             };
 
@@ -407,7 +407,7 @@ export default function ProductosViwe() {
               sku: index.sku,
               Nombre: index.nombre,
               Existencia: index.cantidadTotal,
-              Precio_USD: parseFloat(index.precioUSD).toFixed(2),
+              Precio_USD: parseFloat(index.precioUSD).toFixed(5),
               Precio_CUP: (parseFloat(index.precioUSD) * cambioMoneda).toFixed(
                 0
               ),
@@ -614,7 +614,7 @@ export default function ProductosViwe() {
         setIdProductoDetails(result.id_producto);
         setNombreProductoDetails(result.nombre);
         setPrecioProductoUSDDetails(result.precio);
-        setPrecioProductoCUPDetails((result.precio * cambioMoneda).toFixed(2))
+        setPrecioProductoCUPDetails((result.precio * cambioMoneda).toFixed(0))
         setPrecioEmpresaProductoDetails(result.precio_empresa);
         setSkuDetails(result.Sku);
         setCostopromedio(`USD: ${result.costo_acumulado}  CUP: ${(result.costo_acumulado * cambioMoneda).toFixed(2)}`);
@@ -1849,7 +1849,7 @@ export default function ProductosViwe() {
                             : numericValue;
                         let aux = parseFloat(validNumericValue) * cambioMoneda
                         setPrecioProductoUSDDetails(validNumericValue);
-                        setPrecioProductoCUPDetails(aux.toFixed(2))
+                        setPrecioProductoCUPDetails(aux.toFixed(0))
                       }}
                       editable={modalProductsDates?.fileEditable ? true : false}
                       placeholder="Precio en USD"
@@ -2817,7 +2817,7 @@ export default function ProductosViwe() {
                             : numericValue;
                         let aux = parseFloat(validNumericValue) * cambioMoneda
                         setPrecioProductoUSDDetails(validNumericValue);
-                        setPrecioProductoCUPDetails(aux.toFixed(2))
+                        setPrecioProductoCUPDetails(aux.toFixed(0))
                       }}
                       editable={modalProductsDates?.fileEditable ? true : false}
                       placeholder="Precio en USD"

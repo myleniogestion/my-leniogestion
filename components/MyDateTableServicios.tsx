@@ -208,10 +208,10 @@ export const MyDateTableServicios: React.FC<Props> = ({
     mensaje += `USD: ${sumaMinoristaUSD.toFixed(5)}  CUP: ${(
       sumaMinoristaUSD * cambioMoneda
     ).toFixed(
-      2
+      0
     )}      Importes mayoristas filtrados:  CUP: ${(
       sumaMayoristaUSD * cambioMoneda
-    ).toFixed(2)} `;
+    ).toFixed(0)} `;
     mensaje += `      Transferencis CUP: ${sumaTransferencias}`
     return String(mensaje);
   };
@@ -236,7 +236,7 @@ export const MyDateTableServicios: React.FC<Props> = ({
     });
 
     mensaje += sumaGanancia.toFixed(5);
-    mensaje += `    CUP: ${(sumaGanancia * cambioMoneda).toFixed(2)}`;
+    mensaje += `    CUP: ${(sumaGanancia * cambioMoneda).toFixed(0)}`;
 
     return String(mensaje);
   };
@@ -487,7 +487,7 @@ export const MyDateTableServicios: React.FC<Props> = ({
                       color: item.devuelto ? Colors.gris_claro : Colors.negro,
                     }}
                   >
-                    {(parseFloat(item.precio) * cambioMoneda).toFixed(2)}
+                    {(parseFloat(item.precio) * cambioMoneda).toFixed(0)}
                   </Text>
                 </DataTable.Cell>
 
@@ -1109,7 +1109,7 @@ export const MyDateTableServicios: React.FC<Props> = ({
                       color: item.devuelto ? Colors.gris_claro : Colors.negro,
                     }}
                   >
-                    {(parseFloat(item.precio) * cambioMoneda).toFixed(2)}
+                    {(parseFloat(item.precio) * cambioMoneda).toFixed(0)}
                   </Text>
                 </DataTable.Cell>
 

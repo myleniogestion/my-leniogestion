@@ -97,7 +97,7 @@ export default function LoginView() {
 
   // Funciones de servicios con los usuarios
   const iniciarSecion = async () => {
-    
+    localStorage.clear();
     if (username.trim() != "" && pasword.trim() != "") {
       const resultUserAuth = await iniciarSecionUser(username, pasword);
     // Comprueba si result es false

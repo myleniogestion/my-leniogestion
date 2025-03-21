@@ -212,6 +212,7 @@ export default function ServiciosView() {
   const [costoPromedioProductoUSDDetails, setCostoPromedioProductoUSDDetails] =
     useState("0");
   const [precioUSDDetails, setPrecioUSDDetails] = useState("");
+  const [precioUSDDetailsAuxVal, setPrecioUSDDetailsAuxVal] = useState("");
   const [devueltoDetails, setDevueltoDetails] = useState("sin Devolver");
   const [precioCUPDetails, setPrecioCUPDetails] = useState("");
   const [notaDetails, setNotaDetails] = useState("");
@@ -291,47 +292,87 @@ export default function ServiciosView() {
 
   const [isPermisoVerCostoVenta, setIsPermisoVerCostoVenta] = useState(false);
 
-  const mensajeSumaVenta = () =>{
-    let mensaje = `Se deve cobrar USD: ${parseFloat(precioUSDDetails) * parseFloat(cantidadProductoDetails)}  CUP: ${(parseFloat(precioCUPDetails) * parseFloat(cantidadProductoDetails)).toFixed(2)} y se pagará por transferencia una cantidad de ${cantidadTransferencia}`;
+  const mensajeSumaVenta = () => {
+    let mensaje = `Se deve cobrar USD: ${
+      parseFloat(precioUSDDetails) * parseFloat(cantidadProductoDetails)
+    }  CUP: ${(
+      parseFloat(precioCUPDetails) * parseFloat(cantidadProductoDetails)
+    ).toFixed(
+      0
+    )} y se pagará por transferencia una cantidad de ${cantidadTransferencia}`;
 
-    return mensaje
-  }
+    return mensaje;
+  };
   const checkPermiso = async () => {
     if (usuario?.token) {
-      const resultAgregarServicio = await isPermiso(
-        usuario.token,
-        "26",
-        usuario.id_usuario
-      );
-      const resultEliminarServicio = await isPermiso(
-        usuario.token,
-        "25",
-        usuario.id_usuario
-      );
-      const resultModificarServicio = await isPermiso(
-        usuario.token,
-        "24",
-        usuario.id_usuario
-      );
-      const resulServicioLocal = await isPermiso(
-        usuario.token,
-        "26",
-        usuario.id_usuario
-      );
-      const resultServicioGeneral = await isPermiso(
-        usuario.token,
-        "27",
-        usuario.id_usuario
-      );
+      if (localStorage.getItem("isPermisoAgregarServicio") === null) {
+        const resultAgregarServicio = await isPermiso(
+          usuario.token,
+          "26",
+          usuario.id_usuario
+        );
+        setIsPermisoAgregarServicio(resultAgregarServicio);
+        localStorage.setItem("isPermisoAgregarServicio", resultAgregarServicio);
+      }else{
+        setIsPermisoAgregarServicio(Boolean(localStorage.getItem("isPermisoAgregarServicio")))
+      }
+      if (localStorage.getItem("isPermisoEliminarServicio") === null) {
+        const resultEliminarServicio = await isPermiso(
+          usuario.token,
+          "25",
+          usuario.id_usuario
+        );
+        setIsPermisoEliminarServicio(resultEliminarServicio);
+        localStorage.setItem(
+          "isPermisoEliminarServicio",
+          resultEliminarServicio
+        );
+      }else{
+        setIsPermisoEliminarServicio(Boolean(localStorage.getItem("isPermisoEliminarServicio")))
+      }
+      if (localStorage.getItem("sPermisoModificarServicio") === null) {
+        const resultModificarServicio = await isPermiso(
+          usuario.token,
+          "24",
+          usuario.id_usuario
+        );
+        setIsPermisoModificarServicio(resultModificarServicio);
+        localStorage.setItem(
+          "isPermisoModificarServicio",
+          resultModificarServicio
+        );
+      }else{
+        setIsPermisoModificarServicio(Boolean(localStorage.getItem("isPermisoModificarServicio")))
+      }
+      if (localStorage.getItem("isPermisoServicioLocal") === null) {
+        const resulServicioLocal = await isPermiso(
+          usuario.token,
+          "26",
+          usuario.id_usuario
+        );
+        setIsPermisoServicioLocal(resulServicioLocal);
+        localStorage.setItem("isPermisoServicioLocal", resulServicioLocal);
+      }else{
+        setIsPermisoServicioLocal(Boolean(localStorage.getItem("isPermisoServicioLocal")))
+      }
+      if (localStorage.getItem("isPermisoServicioGeneral") === null) {
+        const resultServicioGeneral = await isPermiso(
+          usuario.token,
+          "27",
+          usuario.id_usuario
+        );
+        setIsPermisoServicioGeneral(resultServicioGeneral);
+        localStorage.setItem("isPermisoServicioGeneral", resultServicioGeneral);
+      }else{
+        setIsPermisoServicioGeneral(Boolean(localStorage.getItem("isPermisoServicioGeneral")))
+      }
 
       // cargar cambio de moneda
-      setCambioMoneda(await getValorMonedaUSD(usuario.token));
-
-      setIsPermisoServicioLocal(resulServicioLocal);
-      setIsPermisoServicioGeneral(resultServicioGeneral);
-      setIsPermisoAgregarServicio(resultAgregarServicio);
-      setIsPermisoEliminarServicio(resultEliminarServicio);
-      setIsPermisoModificarServicio(resultModificarServicio);
+      if (localStorage.getItem("cambioMoneda") === null) {
+        setCambioMoneda(await getValorMonedaUSD(usuario.token));
+      }else{
+        setCambioMoneda(parseFloat(localStorage.getItem("cambioMoneda")))
+      }
     }
   };
 
@@ -572,7 +613,7 @@ export default function ServiciosView() {
             value: element.id_tipo_servicio,
           }))
         );
-
+        
         // Agregar un valor adicional para el valor inicial
         setDropDownItemsNombreTipoServicio([
           { label: "Todos los tipos de servicios", value: "" },
@@ -663,7 +704,6 @@ export default function ServiciosView() {
 
         // Comprobar si el servicio era de venta y si es así cargar datos de este
         if (resultventa) {
-
           // Actualizar variables para la validación de campos
           setIdProductoDetailsViejo(resultventa.producto.id_producto);
           setCantidadProductoDetailsViejo(resultventa.cantidad);
@@ -675,9 +715,13 @@ export default function ServiciosView() {
           setIdTiendaDetails(resultServicio.tienda.id_tienda);
           setPrecioUSDDetails(resultServicio.precio);
           setPrecioCUPDetails(
-            String((parseFloat(resultServicio.precio) * cambioMoneda).toFixed(2))
+            String(
+              (parseFloat(resultServicio.precio) * cambioMoneda).toFixed(0)
+            )
           );
-          setCostoPromedioProductoUSDDetails(resultventa.producto.costo_acumulado);
+          setCostoPromedioProductoUSDDetails(
+            resultventa.producto.costo_acumulado
+          );
         } else {
           // Cargar datos vacios para ingrezar un nuevo producto
 
@@ -695,7 +739,7 @@ export default function ServiciosView() {
         setIsVentaProducto(false);
         setPrecioUSDDetails(resultServicio.precio);
         setPrecioCUPDetails(
-          String((parseInt(resultServicio.precio) * cambioMoneda).toFixed(2))
+          String((parseInt(resultServicio.precio) * cambioMoneda).toFixed(0))
         );
         setCostoPromedioProductoUSDDetails(resultServicio.costo);
       }
@@ -726,7 +770,7 @@ export default function ServiciosView() {
         setDescripcionDetails(result.descripcion);
         setDevueltoDetails(result.devuelto ? "devolver" : "sin devolver");
         setIsGarantiaDetails(result.garantia !== null);
-        setCantidadTransferencia(result.cantidad_transferida)
+        setCantidadTransferencia(result.cantidad_transferida);
         setDuracionGarantiaDetails(
           result.garantia !== null ? result.garantia.duracion : ""
         );
@@ -761,9 +805,7 @@ export default function ServiciosView() {
         setIsGarantiaDetailsViejo(result.garantia !== null);
 
         // Si es un tip de servicios de venta se carga el producto que se halla vendiod o que se esté vendiendo con todos su datos
-        if (
-          parseInt(result.tipo_servicio.id_tipo_servicio) === 2
-        ) {
+        if (parseInt(result.tipo_servicio.id_tipo_servicio) === 2) {
           const resultventa = await getVentaByIDOfServicio(
             usuario.token,
             idServicioDetails
@@ -780,7 +822,7 @@ export default function ServiciosView() {
             setIdTiendaDetails(result.tienda.id_tienda);
             setPrecioUSDDetails(result.precio);
             setPrecioCUPDetails(
-              String((parseFloat(result.precio) * cambioMoneda).toFixed(2))
+              String((parseFloat(result.precio) * cambioMoneda).toFixed(0))
             );
             setCostoPromedioProductoUSDDetails(result.costo_acumulado);
           } else {
@@ -800,7 +842,9 @@ export default function ServiciosView() {
           // Actualizar variable para mostrar venta de producto
           setIsVentaProducto(false);
           setPrecioUSDDetails(result.precio);
-          setPrecioCUPDetails(String((parseInt(result.precio) * cambioMoneda).toFixed(2)));
+          setPrecioCUPDetails(
+            String((parseInt(result.precio) * cambioMoneda).toFixed(0))
+          );
           setCostoPromedioProductoUSDDetails(result.costo);
         }
 
@@ -869,7 +913,7 @@ export default function ServiciosView() {
               devuelto: element.devuelto,
               costo: element.costo,
               cantidad_transferida: element.cantidad_transferida,
-              costo_tipo_servicio: element.tipo_servicio.costo
+              costo_tipo_servicio: element.tipo_servicio.costo,
             }))
           );
           return serviciosMapeados;
@@ -880,6 +924,7 @@ export default function ServiciosView() {
       }
     }
     return null;
+    xº;
   };
 
   // Cargar datos del servicio cuando se seleccionado en la tabla
@@ -902,7 +947,7 @@ export default function ServiciosView() {
       setPrecioUSDDetails(parseFloat(precioUSDDetails).toFixed(4));
       setAuxRedondeo("");
     } else if (auxRedondeo === "PrecioUSD") {
-      setPrecioCUPDetails(parseFloat(precioCUPDetails).toFixed(2));
+      setPrecioCUPDetails(parseFloat(precioCUPDetails).toFixed(0));
       setAuxRedondeo("");
     } else if (auxRedondeo === "CostoCUP") {
       setCostoPromedioProductoUSDDetails(
@@ -911,7 +956,7 @@ export default function ServiciosView() {
       setAuxRedondeo("");
     } else if (auxRedondeo === "CostoUSD") {
       setCostoPromedioProductoCUPDetails(
-        parseFloat(costoPromedioProductoCUPDetails).toFixed(2)
+        parseFloat(costoPromedioProductoCUPDetails).toFixed(0)
       );
       setAuxRedondeo("");
     }
@@ -958,8 +1003,11 @@ export default function ServiciosView() {
           setCostoPromedioProductoUSDDetails(resultProdcuto.costo_acumulado);
           // Cargar precio del producto seleccioando en USD y CUP
           setPrecioUSDDetails(resultProdcuto.precio ?? 0);
+          setPrecioUSDDetailsAuxVal(resultProdcuto.precio ?? 0);
           setPrecioCUPDetails(
-            String((parseFloat(resultProdcuto.precio) * cambioMoneda).toFixed(2)) ?? 0
+            String(
+              (parseFloat(resultProdcuto.precio) * cambioMoneda).toFixed(0)
+            ) ?? 0
           );
         };
         auxiliarAsyncFuncion();
@@ -1067,12 +1115,12 @@ export default function ServiciosView() {
   const auxSetModalProovedoresDates = () => {
     setIsDateLoaded(false);
     setIdTiendaDetails(usuario?.id_tienda);
+    setIdTipoServicioDetails("")
     setIdClienteDetails("");
     setPrecioUSDDetails("");
     setPrecioCUPDetails("");
     setCantidadProductoDetails("");
     setCostoPromedioProductoUSDDetails("");
-    setIdTipoServicioDetails("");
     setCantidadProductoDetails("");
     setNotaDetails("");
     setDescripcionDetails("");
@@ -1151,7 +1199,10 @@ export default function ServiciosView() {
         flag = false;
         validarCampos += "-Digite el costo del servicio.\n";
       }
-
+      if (parseFloat(precioUSDDetails) !== parseFloat(precioUSDDetailsAuxVal) && descripcionDetails === "") {
+        flag = false;
+      }
+      validarCampos += "-Si cambia el precio original del producto deve proporcionar una descripcipón del porque.\n"
       if (
         precioUSDDetails === "" ||
         costoPromedioProductoUSDDetails === undefined
@@ -1181,9 +1232,13 @@ export default function ServiciosView() {
         flag = false;
         validarCampos += "-Seleccione una tienda.\n";
       }
-      if (parseFloat(cantidadTransferencia) > (parseFloat(precioCUPDetails) * parseInt(cantidadProductoDetails))) {
+      if (
+        parseFloat(cantidadTransferencia) >
+        parseFloat(precioCUPDetails) * parseInt(cantidadProductoDetails)
+      ) {
         flag = false;
-        validarCampos += "-La cantidad de la transferencia es mayor que el precio del producto. \n";
+        validarCampos +=
+          "-La cantidad de la transferencia es mayor que el precio del producto. \n";
       }
       if (auxIsProductoInTienda) {
         if (
@@ -1232,7 +1287,9 @@ export default function ServiciosView() {
       }
       // Validacion de deuda
       if (isDeudaDetails && !isEncargoProducto) {
-        if (parseFloat(adelantoUSDDeudaDetails) > parseFloat(precioUSDDetails)) {
+        if (
+          parseFloat(adelantoUSDDeudaDetails) > parseFloat(precioUSDDetails)
+        ) {
           flag = false;
           validarCampos +=
             "-El adelanto inicial de la deuda es mayor que el monto a cobrar por el servicio.\n";
@@ -1253,13 +1310,12 @@ export default function ServiciosView() {
           idTiendaDetails,
           idTipoServicioDetails,
           costoPromedioProductoUSDDetails,
-          (cantidadTransferencia === "")? "0" : cantidadTransferencia,
+          cantidadTransferencia === "" ? "0" : cantidadTransferencia,
           idClienteDetails,
           "Not suport yet",
           "not suport yet"
         );
         console.log(resultAddServicio);
-        
 
         //Agregar Garantía si es que hay
         if (isGarantiaDetails) {
@@ -1277,7 +1333,10 @@ export default function ServiciosView() {
             resultAddServicio.id_servicio,
             undefined
           );
-          if (adelantoUSDDeudaDetails && parseFloat(adelantoUSDDeudaDetails) > 0) {
+          if (
+            adelantoUSDDeudaDetails &&
+            parseFloat(adelantoUSDDeudaDetails) > 0
+          ) {
             await addPagoDeuda(
               usuario.token,
               adelantoUSDDeudaDetails,
@@ -1436,9 +1495,13 @@ export default function ServiciosView() {
         flag = false;
         validarCampos += "-Seleccione una tienda.\n";
       }
-      if (parseFloat(cantidadTransferencia) > (parseFloat(precioCUPDetails) * parseInt(cantidadProductoDetails))) {
+      if (
+        parseFloat(cantidadTransferencia) >
+        parseFloat(precioCUPDetails) * parseInt(cantidadProductoDetails)
+      ) {
         flag = false;
-        validarCampos += "-La cantidad de la transferencia es mayor que el precio del producto. \n";
+        validarCampos +=
+          "-La cantidad de la transferencia es mayor que el precio del producto. \n";
       }
       if (isGarantiaDetails && duracionGarantiaDetails === "") {
         flag = false;
@@ -1541,7 +1604,7 @@ export default function ServiciosView() {
           idTiendaDetails,
           idTipoServicioDetails,
           costoPromedioProductoUSDDetails,
-          (cantidadTransferencia === "")? "0" : cantidadTransferencia,
+          cantidadTransferencia === "" ? "0" : cantidadTransferencia,
           devueltoDetails === "devolver",
           idClienteDetails,
           "Not suport yet",
@@ -1602,7 +1665,7 @@ export default function ServiciosView() {
         }
         // Si se cambio de tipo de servicio venta a otro
         if (
-          (parseInt(idTipoServicioDetailsViejo) === 2) &&
+          parseInt(idTipoServicioDetailsViejo) === 2 &&
           parseInt(idTipoServicioDetails) !== 2 &&
           parseInt(idTipoServicioDetails) !== 4
         ) {
@@ -1954,7 +2017,7 @@ export default function ServiciosView() {
                 backgroundColor: Colors.azul_Claro, // Color de fondo del botón
               }}
             >
-              <Text style={styles.radioButtonTextMovil}>Agregar Servicio</Text>
+              <Text style={styles.radioButtonTextMovil}>Agregar Venta</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -2386,8 +2449,8 @@ export default function ServiciosView() {
                 }}
               >
                 {modalEntradasDates?.id_entrada === ""
-                  ? "Crear Servicio"
-                  : "Datos del Servicio"}
+                  ? "Crear Venta"
+                  : "Datos de la Venta"}
               </Text>
 
               {/* ScrollView para permitir el desplazamiento del contenido */}
@@ -2636,10 +2699,11 @@ export default function ServiciosView() {
                                 numericValue.split(".").length > 2
                                   ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
                                   : numericValue;
-                          
+
                               setAdelantoUSDDeudaDetails(validNumericValue);
-                              const costoCUP = parseFloat(validNumericValue) * cambioMoneda;
-                              setAdelantoCUPDeudaDetails(costoCUP.toFixed(2));
+                              const costoCUP =
+                                parseFloat(validNumericValue) * cambioMoneda;
+                              setAdelantoCUPDeudaDetails(costoCUP.toFixed(0));
                             }}
                             cursorColor={Colors.azul_Oscuro}
                             editable={
@@ -2662,28 +2726,28 @@ export default function ServiciosView() {
                       isDeudaDetails &&
                       modalEntradasDates?.id_entrada === "" && (
                         <CustomTextImputSearch
-                            style={styles.textImputModal}
-                            value={adelantoCUPDeudaDetails}
-                            onChangeText={(text) => {
-                              // Permite solo números y un punto decimal
-                              const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
-                              // Asegura que solo haya un punto decimal
-                              const validNumericValue =
-                                numericValue.split(".").length > 2
-                                  ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
-                                  : numericValue;
-                          
-                              setAdelantoCUPDeudaDetails(validNumericValue);
-                              const costoUSD = parseFloat(validNumericValue) / cambioMoneda;
-                              setAdelantoUSDDeudaDetails(costoUSD.toFixed(5));
-                            }}
-                            cursorColor={Colors.azul_Oscuro}
-                            editable={
-                              isPermisoModificarServicio ||
-                              isPermisoServicioLocal
-                            }
-                            placeholder="Adelanto"
-                          />
+                          style={styles.textImputModal}
+                          value={adelantoCUPDeudaDetails}
+                          onChangeText={(text) => {
+                            // Permite solo números y un punto decimal
+                            const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                            // Asegura que solo haya un punto decimal
+                            const validNumericValue =
+                              numericValue.split(".").length > 2
+                                ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                                : numericValue;
+
+                            setAdelantoCUPDeudaDetails(validNumericValue);
+                            const costoUSD =
+                              parseFloat(validNumericValue) / cambioMoneda;
+                            setAdelantoUSDDeudaDetails(costoUSD.toFixed(5));
+                          }}
+                          cursorColor={Colors.azul_Oscuro}
+                          editable={
+                            isPermisoModificarServicio || isPermisoServicioLocal
+                          }
+                          placeholder="Adelanto"
+                        />
                       )}
                   </View>
                 </View>
@@ -2773,7 +2837,10 @@ export default function ServiciosView() {
                       </Text>
                       <CustomTextImputSearch
                         style={styles.textImputModal}
-                        value={costoPromedioProductoUSDDetails}
+                        value={`USD: ${costoPromedioProductoUSDDetails}  CUP: ${(
+                          parseFloat(costoPromedioProductoUSDDetails) *
+                          cambioMoneda
+                        ).toFixed(2)}`}
                         onChangeText={(text) => {
                           // Permite solo números y un punto decimal
                           const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
@@ -2788,7 +2855,7 @@ export default function ServiciosView() {
                               String(
                                 (
                                   parseFloat(validNumericValue) * cambioMoneda
-                                ).toFixed(2)
+                                ).toFixed(0)
                               )
                             );
                           } else {
@@ -2894,7 +2961,7 @@ export default function ServiciosView() {
                             String(
                               (
                                 parseFloat(validNumericValue) * cambioMoneda
-                              ).toFixed(2)
+                              ).toFixed(0)
                             )
                           );
                         } else {
@@ -2937,7 +3004,11 @@ export default function ServiciosView() {
 
                         if (validNumericValue !== "") {
                           setPrecioUSDDetails(
-                            String((parseFloat(validNumericValue) / cambioMoneda).toFixed(5))
+                            String(
+                              (
+                                parseFloat(validNumericValue) / cambioMoneda
+                              ).toFixed(5)
+                            )
                           );
                         } else {
                           setPrecioUSDDetails("0");
@@ -2954,15 +3025,19 @@ export default function ServiciosView() {
                   </View>
                 </View>
 
-                {isVentaProducto && (<View style={{
-                  width: "100%",
-                  justifyContent: "center", // Para separar los campos de forma uniforme
-                  alignItems: "center",
-                  flexDirection: "row",
-                  paddingHorizontal: 10,
-                }}>
-                  <Text>{mensajeSumaVenta()}</Text>
-                </View>)}
+                {isVentaProducto && (
+                  <View
+                    style={{
+                      width: "100%",
+                      justifyContent: "center", // Para separar los campos de forma uniforme
+                      alignItems: "center",
+                      flexDirection: "row",
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    <Text>{mensajeSumaVenta()}</Text>
+                  </View>
+                )}
 
                 {isVentaProducto && <View style={styles.separatorNegro} />}
 
@@ -3161,7 +3236,7 @@ export default function ServiciosView() {
                             fontSize: 16,
                           }}
                         >
-                          Agregar Servicio
+                          Agregar Venta
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -3400,7 +3475,7 @@ export default function ServiciosView() {
                     styles.radioButtonTextSelected,
                 ]}
               >
-                Agregar Servicio
+                Agregar Venta
               </Text>
             </TouchableOpacity>
           )}
@@ -3778,8 +3853,8 @@ export default function ServiciosView() {
                 }}
               >
                 {modalEntradasDates?.id_entrada === ""
-                  ? "Crear Servicio"
-                  : "Datos del Servicio"}
+                  ? "Crear Venta"
+                  : "Datos de la Venta"}
               </Text>
 
               {/* ScrollView para permitir el desplazamiento del contenido */}
@@ -4028,10 +4103,11 @@ export default function ServiciosView() {
                               numericValue.split(".").length > 2
                                 ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
                                 : numericValue;
-                        
+
                             setAdelantoUSDDeudaDetails(validNumericValue);
-                            const costoCUP = parseFloat(validNumericValue) * cambioMoneda;
-                            setAdelantoCUPDeudaDetails(costoCUP.toFixed(2));
+                            const costoCUP =
+                              parseFloat(validNumericValue) * cambioMoneda;
+                            setAdelantoCUPDeudaDetails(costoCUP.toFixed(0));
                           }}
                           cursorColor={Colors.azul_Oscuro}
                           editable={
@@ -4049,28 +4125,28 @@ export default function ServiciosView() {
                     )}
                     {!isEncargoProducto && isDeudaDetails && (
                       <CustomTextImputSearch
-                      style={styles.textImputModal}
-                      value={adelantoCUPDeudaDetails}
-                      onChangeText={(text) => {
-                        // Permite solo números y un punto decimal
-                        const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
-                        // Asegura que solo haya un punto decimal
-                        const validNumericValue =
-                          numericValue.split(".").length > 2
-                            ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
-                            : numericValue;
-                    
-                        setAdelantoCUPDeudaDetails(validNumericValue);
-                        const costoUSD = parseFloat(validNumericValue) / cambioMoneda;
-                        setAdelantoUSDDeudaDetails(costoUSD.toFixed(5));
-                      }}
-                      cursorColor={Colors.azul_Oscuro}
-                      editable={
-                        isPermisoModificarServicio ||
-                        isPermisoServicioLocal
-                      }
-                      placeholder="Adelanto"
-                    />
+                        style={styles.textImputModal}
+                        value={adelantoCUPDeudaDetails}
+                        onChangeText={(text) => {
+                          // Permite solo números y un punto decimal
+                          const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                          // Asegura que solo haya un punto decimal
+                          const validNumericValue =
+                            numericValue.split(".").length > 2
+                              ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                              : numericValue;
+
+                          setAdelantoCUPDeudaDetails(validNumericValue);
+                          const costoUSD =
+                            parseFloat(validNumericValue) / cambioMoneda;
+                          setAdelantoUSDDeudaDetails(costoUSD.toFixed(5));
+                        }}
+                        cursorColor={Colors.azul_Oscuro}
+                        editable={
+                          isPermisoModificarServicio || isPermisoServicioLocal
+                        }
+                        placeholder="Adelanto"
+                      />
                     )}
                   </View>
                 </View>
@@ -4160,7 +4236,10 @@ export default function ServiciosView() {
                       </Text>
                       <CustomTextImputSearch
                         style={styles.textImputModal}
-                        value={`USD: ${costoPromedioProductoUSDDetails}  CUP: ${(parseFloat(costoPromedioProductoUSDDetails) * cambioMoneda).toFixed(2)}`}
+                        value={`USD: ${costoPromedioProductoUSDDetails}  CUP: ${(
+                          parseFloat(costoPromedioProductoUSDDetails) *
+                          cambioMoneda
+                        ).toFixed(2)}`}
                         onChangeText={(text) => {
                           // Permite solo números y un punto decimal
                           const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
@@ -4175,7 +4254,7 @@ export default function ServiciosView() {
                               String(
                                 (
                                   parseFloat(validNumericValue) * cambioMoneda
-                                ).toFixed(2)
+                                ).toFixed(0)
                               )
                             );
                           } else {
@@ -4281,7 +4360,7 @@ export default function ServiciosView() {
                             String(
                               (
                                 parseFloat(validNumericValue) * cambioMoneda
-                              ).toFixed(2)
+                              ).toFixed(0)
                             )
                           );
                         } else {
@@ -4324,7 +4403,11 @@ export default function ServiciosView() {
 
                         if (validNumericValue !== "") {
                           setPrecioUSDDetails(
-                            String((parseFloat(validNumericValue) / cambioMoneda).toFixed(5))
+                            String(
+                              (
+                                parseFloat(validNumericValue) / cambioMoneda
+                              ).toFixed(5)
+                            )
                           );
                         } else {
                           setPrecioUSDDetails("0");
@@ -4341,15 +4424,19 @@ export default function ServiciosView() {
                   </View>
                 </View>
 
-                {isVentaProducto && (<View style={{
-                  width: "100%",
-                  justifyContent: "center", // Para separar los campos de forma uniforme
-                  alignItems: "center",
-                  flexDirection: "row",
-                  paddingHorizontal: 10,
-                }}>
-                  <Text>{mensajeSumaVenta()}</Text>
-                </View>)}
+                {isVentaProducto && (
+                  <View
+                    style={{
+                      width: "100%",
+                      justifyContent: "center", // Para separar los campos de forma uniforme
+                      alignItems: "center",
+                      flexDirection: "row",
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    <Text>{mensajeSumaVenta()}</Text>
+                  </View>
+                )}
 
                 {/*Campo de los check bootom */}
                 {modalEntradasDates?.id_entrada !== "" && (
@@ -4585,7 +4672,7 @@ export default function ServiciosView() {
                             fontSize: 16,
                           }}
                         >
-                          Agregar Servicio
+                          Agregar Venta
                         </Text>
                       </TouchableOpacity>
                     )}

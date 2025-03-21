@@ -687,7 +687,7 @@ export const MyDateTableProductos: React.FC<Props> = ({
                   {item.precioUSD}
                 </DataTable.Cell>
                 <DataTable.Cell numeric style={styles.handerRowMovil}>
-                  {(parseFloat(item.precioUSD) * cambioMoneda).toFixed(2)}
+                  {(parseFloat(item.precioUSD) * cambioMoneda).toFixed(0)}
                 </DataTable.Cell>
                 <DataTable.Cell numeric style={styles.handerRowMovil}>
                   <Text>{item.cantidadTotal} </Text>
@@ -1420,7 +1420,7 @@ export const MyDateTableProductos: React.FC<Props> = ({
                   {item.precioUSD}
                 </DataTable.Cell>
                 <DataTable.Cell numeric style={styles.handerRowDesktop}>
-                  {(parseFloat(item.precioUSD) * cambioMoneda).toFixed(2)}
+                  {(parseFloat(item.precioUSD) * cambioMoneda).toFixed(0)}
                 </DataTable.Cell>
                 <DataTable.Cell
                   numeric

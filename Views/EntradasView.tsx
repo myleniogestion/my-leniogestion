@@ -1709,6 +1709,8 @@ export default function EntradasView() {
                   }}
                 >
                   <View style={{ width: "45%", marginLeft: "2%" }}>
+                    <Text style={styles.labelTextModalDesktop}>Costo de cada unidad</Text>
+                    <Text style={styles.labelTextModalDesktop}>USD: {(parseFloat(costoUSDDetails)/parseInt(cantidadDetails)).toFixed(5)}   CUP: {((parseFloat(costoUSDDetails)/parseInt(cantidadDetails)) * cambioMoneda).toFixed(2)}</Text>
                   </View>
 
                   {/* Campo Costo */}
