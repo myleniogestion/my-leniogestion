@@ -101,6 +101,15 @@ export class SalidaController{
             
         }
     }
+    async getSalidasPaginated(req: Request, res: Response) {
+        const { page } = req.params;
+        try {
+          const data = await this.salidaService.getSalidasPaginated(parseInt(page));
+          (data) ? res.status(200).json(data) : res.status(404).json("Data not found");
+        } catch (error: any) {
+          res.status(500).json({ "error": error.message });
+        }
+      }
     async OrdenarSalida(req:Request,res:Response){
        let{items,criterio,ascendente}=req.body
             try {

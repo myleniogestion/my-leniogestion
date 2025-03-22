@@ -61,6 +61,15 @@ export class ServicioController{
         }
 
     }
+    async getServiciosPaginated(req: Request, res: Response) {
+        const { page } = req.params;
+        try {
+          const data = await this.servicioService.getServiciosPaginated(parseInt(page));
+          (data) ? res.status(200).json(data) : res.status(404).json("Data not found");
+        } catch (error: any) {
+          res.status(500).json({ "error": error.message });
+        }
+      }
     async getServiciosPorTipo_servicio(req:Request,res:Response){
         const{id_tipo_servicio}=req.params;
         try{

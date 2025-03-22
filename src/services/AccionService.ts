@@ -36,6 +36,24 @@ export class AccionService extends BaseService<Accion> {
     async deleteAccion(id: number): Promise<DeleteResult>{
         return (await this.execRepository).delete(id);
     }
+    async getAccionesPaginated(page: number) {
+        const limite = 20;
+        const offset = (page - 1) * limite;
+    
+        const acciones = await (await this.execRepository)
+          .createQueryBuilder("a")
+          .leftJoinAndSelect("a.usuario", "u")
+          .leftJoinAndSelect("a.tipo_accion", "ta")
+          .take(limite)
+          .skip(offset)
+          .getMany();
+    
+        const cantidad_total_acciones = await (await this.execRepository)
+          .createQueryBuilder("a")
+          .getCount();
+    
+        return { "acciones": acciones, "pagina": page, "cantidad_total_acciones": cantidad_total_acciones };
+      }
     // actualizar un Acciones
    async updateAccion(id: number, infoUpdate: AccionDto): Promise<UpdateResult>{
     return (await this.execRepository).update(id, infoUpdate);

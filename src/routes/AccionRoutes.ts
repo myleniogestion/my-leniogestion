@@ -22,6 +22,8 @@ this.router.post('/Accion/createAccion',[verifyToken] ,(req:Request, res:Respons
         // eliminar Accion
 this.router.delete('/Accion/deleteAccion/:ID',[verifyToken] ,(req:Request, res:Response) => this.controller.deleteAccion(req, res));
     
+this.router.get('/Accion/getPaginated/:page', [verifyToken], (req: Request, res: Response) => this.controller.getAccionesPaginated(req, res));
+
 this.router.post('/Accion/api/filtrar',[verifyToken] ,(req:Request, res:Response) =>this.controller.filtrarAccion(req,res));
 
 this.router.post('/Accion/ordenar/all',[verifyToken] ,(req:Request, res:Response) =>this.controller.OrdenarAcciones(req,res));

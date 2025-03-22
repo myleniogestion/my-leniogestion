@@ -22,6 +22,7 @@ this.router.post('/Salida/createSalida', [verifyToken],(req:Request, res:Respons
         // eliminar Salida
 this.router.delete('/Salida/deleteSalida/:ID', [verifyToken],(req:Request, res:Response) => this.controller.deleteSalida(req, res));
     
+this.router.get('/Salida/getPaginated/:page', [verifyToken], (req: Request, res: Response) => this.controller.getSalidasPaginated(req, res));
 
 this.router.post('/Salida/ordenar/all', [verifyToken],(req:Request, res:Response) =>this.controller.OrdenarSalida(req,res));
 

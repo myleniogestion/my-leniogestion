@@ -22,6 +22,8 @@ this.router.put('/Servicio/updateServicio/:ID',[verifyToken] ,(req:Request, res:
         // eliminar Servicio
 this.router.delete('/Servicio/deleteServicio/:ID',[verifyToken] ,(req:Request, res:Response) => this.controller.deleteServicio(req, res));
 
+this.router.get('/Servicio/getPaginated/:page', [verifyToken], (req: Request, res: Response) => this.controller.getServiciosPaginated(req, res));
+
 this.router.get("/Servicio/gananciastotales/xd",[verifyToken],(req:Request,res:Response)=>this.controller.getAllGanancia(req,res))
 
 this.router.get("/Servicio/filtrarTipo_servicio/:id_tipo_servicio",[verifyToken],(req:Request,res:Response)=>this.controller.getServiciosPorTipo_servicio(req,res))
