@@ -43,7 +43,7 @@ export default function LoginView() {
 
         console.log(response);
 
-        if (response.status === 403) {z
+        if (response.status === 403) {
           console.log("OKAY"); // El backend respondió correctamente
           return; // Salir de la función
         } else if (!response.ok) {
