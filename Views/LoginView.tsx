@@ -43,7 +43,7 @@ export default function LoginView() {
 
         console.log(response);
 
-        if (response.status === 403) {
+        if (response.status === 403) {z
           console.log("OKAY"); // El backend respondió correctamente
           return; // Salir de la función
         } else if (!response.ok) {
@@ -65,7 +65,7 @@ export default function LoginView() {
       // Código que se ejecutará cuando la pantalla esté enfocada
       console.log("La pantalla de Login está enfocada");
       
-      //checkBackend()
+      checkBackend()
 
       // Si necesitas limpiar algo cuando la pantalla pierde el foco, puedes retornar una función de limpieza
       return () => {
