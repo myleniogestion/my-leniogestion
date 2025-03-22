@@ -183,40 +183,92 @@ export default function EnMyTiendaView() {
 
   const checkPermisoServicios = async () => {
     if (usuario?.token) {
-      const resultAgregarServicio = await isPermiso(
-        usuario.token,
-        "26",
-        usuario.id_usuario
-      );
-      const resultEliminarServicio = await isPermiso(
-        usuario.token,
-        "25",
-        usuario.id_usuario
-      );
-      const resultModificarServicio = await isPermiso(
-        usuario.token,
-        "24",
-        usuario.id_usuario
-      );
-      const resulServicioLocal = await isPermiso(
-        usuario.token,
-        "26",
-        usuario.id_usuario
-      );
-      const resultServicioGeneral = await isPermiso(
-        usuario.token,
-        "27",
-        usuario.id_usuario
-      );
+      // Verificar y almacenar el permiso de agregar servicio
+      if (localStorage.getItem("resultAgregarServicio") === null) {
+        const resultAgregarServicio = await isPermiso(
+          usuario.token,
+          "26",
+          usuario.id_usuario
+        );
+        setIsPermisoAgregarServicio(resultAgregarServicio);
+        localStorage.setItem("resultAgregarServicio", resultAgregarServicio);
+      } else {
+        setIsPermisoAgregarServicio(
+          Boolean(localStorage.getItem("resultAgregarServicio"))
+        );
+      }
 
-      // cargar cambio de moneda
-      setCambioMoneda(await getValorMonedaUSD(usuario.token));
+      // Verificar y almacenar el permiso de eliminar servicio
+      if (localStorage.getItem("resultEliminarServicio") === null) {
+        const resultEliminarServicio = await isPermiso(
+          usuario.token,
+          "25",
+          usuario.id_usuario
+        );
+        setIsPermisoEliminarServicio(resultEliminarServicio);
+        localStorage.setItem("resultEliminarServicio", resultEliminarServicio);
+      } else {
+        setIsPermisoEliminarServicio(
+          Boolean(localStorage.getItem("resultEliminarServicio"))
+        );
+      }
 
-      setIsPermisoServicioLocal(resulServicioLocal);
-      setIsPermisoServicioGeneral(resultServicioGeneral);
-      setIsPermisoAgregarServicio(resultAgregarServicio);
-      setIsPermisoEliminarServicio(resultEliminarServicio);
-      setIsPermisoModificarServicio(resultModificarServicio);
+      // Verificar y almacenar el permiso de modificar servicio
+      if (localStorage.getItem("resultModificarServicio") === null) {
+        const resultModificarServicio = await isPermiso(
+          usuario.token,
+          "24",
+          usuario.id_usuario
+        );
+        setIsPermisoModificarServicio(resultModificarServicio);
+        localStorage.setItem(
+          "resultModificarServicio",
+          resultModificarServicio
+        );
+      } else {
+        setIsPermisoModificarServicio(
+          Boolean(localStorage.getItem("resultModificarServicio"))
+        );
+      }
+
+      // Verificar y almacenar el permiso de servicio local
+      if (localStorage.getItem("resulServicioLocal") === null) {
+        const resulServicioLocal = await isPermiso(
+          usuario.token,
+          "26",
+          usuario.id_usuario
+        );
+        setIsPermisoServicioLocal(resulServicioLocal);
+        localStorage.setItem("resulServicioLocal", resulServicioLocal);
+      } else {
+        setIsPermisoServicioLocal(
+          Boolean(localStorage.getItem("resulServicioLocal"))
+        );
+      }
+
+      // Verificar y almacenar el permiso de servicio general
+      if (localStorage.getItem("resultServicioGeneral") === null) {
+        const resultServicioGeneral = await isPermiso(
+          usuario.token,
+          "27",
+          usuario.id_usuario
+        );
+        setIsPermisoServicioGeneral(resultServicioGeneral);
+        localStorage.setItem("resultServicioGeneral", resultServicioGeneral);
+      } else {
+        setIsPermisoServicioGeneral(
+          Boolean(localStorage.getItem("resultServicioGeneral"))
+        );
+      }
+
+      // Cargar cambio de moneda
+      if (localStorage.getItem("cambioMoneda") === null) {
+        const cambioMoneda = await getValorMonedaUSD(usuario.token);
+        setCambioMoneda(cambioMoneda);
+        localStorage.setItem("cambioMoneda", cambioMoneda.toString());
+      } else {
+        setCambioMoneda(parseFloat(localStorage.getItem("cambioMoneda")));
+      }
     }
   };
   const getTipoServicioPikerDetails = async () => {
@@ -326,9 +378,7 @@ export default function EnMyTiendaView() {
       const result = await getServicioByID(usuario.token, idProductoDetails);
 
       // Si es un tip de servicios de venta se carga el producto que se halla vendiod o que se esté vendiendo con todos su datos
-      if (
-        parseInt(idTipoServicioDetails) === 2
-      ) {
+      if (parseInt(idTipoServicioDetails) === 2) {
         const resultventa = await getVentaByIDOfServicio(
           usuario.token,
           idServicioDetails
@@ -414,9 +464,7 @@ export default function EnMyTiendaView() {
         validarCampos += "-Defina el precio cobrado al cliente.\n";
       }
       // Validaciones si es una venta
-      if (
-        parseInt(idTipoServicioDetails) === 2
-      ) {
+      if (parseInt(idTipoServicioDetails) === 2) {
         if (idProductoDetails === "") {
           flag = false;
           validarCampos += "-Seleccione un producto para vender.\n";
@@ -441,9 +489,7 @@ export default function EnMyTiendaView() {
         );
 
         //Agregar venta si es que es necezario
-        if (
-          parseInt(idTipoServicioDetails) === 2
-        ) {
+        if (parseInt(idTipoServicioDetails) === 2) {
           await addVenta(
             usuario.token,
             idProductoDetails,
@@ -956,58 +1002,138 @@ export default function EnMyTiendaView() {
 
   const checkPermiso = async () => {
     if (usuario?.token) {
-      const resultPermisoButonAddProducto = await isPermiso(
-        usuario.token,
-        "6",
-        usuario.id_usuario
-      );
-      const resultPermisoHistorialDeProveedores = await isPermiso(
-        usuario.token,
-        "38",
-        usuario.id_usuario
-      );
-      const resultPermisoButonOptionModificar = await isPermiso(
-        usuario.token,
-        "7",
-        usuario.id_usuario
-      );
-      const resultPermisoButonOptionEliminar = await isPermiso(
-        usuario.token,
-        "8",
-        usuario.id_usuario
-      );
-      const resultPermisoButonOptionMoverLocal = await isPermiso(
-        usuario.token,
-        "30",
-        usuario.id_usuario
-      );
-      const resultPermisoButonOptionMoverGeneral = await isPermiso(
-        usuario.token,
-        "31",
-        usuario.id_usuario
-      );
-      const resultPermisoVentaGeneral = await isPermiso(
-        usuario.token,
-        "27",
-        usuario.id_usuario
-      );
+      // Verificar y almacenar el permiso del botón de agregar producto
+      if (localStorage.getItem("resultPermisoButonAddProducto") === null) {
+        const resultPermisoButonAddProducto = await isPermiso(
+          usuario.token,
+          "6",
+          usuario.id_usuario
+        );
+        setIsPermisoButtonAddProducto(resultPermisoButonAddProducto);
+        localStorage.setItem(
+          "resultPermisoButonAddProducto",
+          resultPermisoButonAddProducto
+        );
+      } else {
+        setIsPermisoButtonAddProducto(
+          Boolean(localStorage.getItem("resultPermisoButonAddProducto"))
+        );
+      }
+
+      // Verificar y almacenar el permiso del historial de proveedores
+      if (
+        localStorage.getItem("resultPermisoHistorialDeProveedores") === null
+      ) {
+        const resultPermisoHistorialDeProveedores = await isPermiso(
+          usuario.token,
+          "38",
+          usuario.id_usuario
+        );
+        setIsPermisoHistorialDeProveedores(resultPermisoHistorialDeProveedores);
+        localStorage.setItem(
+          "resultPermisoHistorialDeProveedores",
+          resultPermisoHistorialDeProveedores
+        );
+      } else {
+        setIsPermisoHistorialDeProveedores(
+          Boolean(localStorage.getItem("resultPermisoHistorialDeProveedores"))
+        );
+      }
+
+      // Verificar y almacenar el permiso del botón de modificar
+      if (localStorage.getItem("resultPermisoButonOptionModificar") === null) {
+        const resultPermisoButonOptionModificar = await isPermiso(
+          usuario.token,
+          "7",
+          usuario.id_usuario
+        );
+        localStorage.setItem(
+          "resultPermisoButonOptionModificar",
+          resultPermisoButonOptionModificar
+        );
+      } else {
+      }
+
+      // Verificar y almacenar el permiso del botón de eliminar
+      if (localStorage.getItem("resultPermisoButonOptionEliminar") === null) {
+        const resultPermisoButonOptionEliminar = await isPermiso(
+          usuario.token,
+          "8",
+          usuario.id_usuario
+        );
+        localStorage.setItem(
+          "resultPermisoButonOptionEliminar",
+          resultPermisoButonOptionEliminar
+        );
+      } else {
+      }
+
+      // Verificar y almacenar el permiso del botón de mover local
+      if (localStorage.getItem("resultPermisoButonOptionMoverLocal") === null) {
+        const resultPermisoButonOptionMoverLocal = await isPermiso(
+          usuario.token,
+          "30",
+          usuario.id_usuario
+        );
+        setIsPermisoMoverLocal(resultPermisoButonOptionMoverLocal);
+        localStorage.setItem(
+          "resultPermisoButonOptionMoverLocal",
+          resultPermisoButonOptionMoverLocal
+        );
+      } else {
+        setIsPermisoMoverLocal(
+          Boolean(localStorage.getItem("resultPermisoButonOptionMoverLocal"))
+        );
+      }
+
+      // Verificar y almacenar el permiso del botón de mover general
+      if (
+        localStorage.getItem("resultPermisoButonOptionMoverGeneral") === null
+      ) {
+        const resultPermisoButonOptionMoverGeneral = await isPermiso(
+          usuario.token,
+          "31",
+          usuario.id_usuario
+        );
+        setIsPermisoMoverGeneral(resultPermisoButonOptionMoverGeneral);
+        localStorage.setItem(
+          "resultPermisoButonOptionMoverGeneral",
+          resultPermisoButonOptionMoverGeneral
+        );
+      } else {
+        setIsPermisoMoverGeneral(
+          Boolean(localStorage.getItem("resultPermisoButonOptionMoverGeneral"))
+        );
+      }
+
+      // Verificar y almacenar el permiso de venta general
+      if (localStorage.getItem("resultPermisoVentaGeneral") === null) {
+        const resultPermisoVentaGeneral = await isPermiso(
+          usuario.token,
+          "27",
+          usuario.id_usuario
+        );
+        setIsPermisoRestarProducto(resultPermisoVentaGeneral);
+        localStorage.setItem(
+          "resultPermisoVentaGeneral",
+          resultPermisoVentaGeneral
+        );
+      } else {
+        setIsPermisoRestarProducto(
+          Boolean(localStorage.getItem("resultPermisoVentaGeneral"))
+        );
+      }
+
+      // Llamar a la función de verificación de permisos de servicios
       checkPermisoServicios();
 
-      // Actualiza el estado con los resultado
+      // Actualiza el estado con los resultados
       setIsPermisoOpcionesDeCelda(
-        resultPermisoButonOptionEliminar ||
-          resultPermisoButonOptionModificar ||
-          resultPermisoButonOptionMoverLocal ||
-          resultPermisoButonOptionMoverGeneral
+        Boolean(localStorage.getItem("resultPermisoButonOptionEliminar")) ||
+          Boolean(localStorage.getItem("resultPermisoButonOptionModificar")) ||
+          Boolean(localStorage.getItem("resultPermisoButonOptionMoverLocal")) ||
+          Boolean(localStorage.getItem("resultPermisoButonOptionMoverGeneral"))
       );
-
-      setIsPermisoButtonAddProducto(resultPermisoButonAddProducto);
-      setIsPermisoHistorialDeProveedores(resultPermisoHistorialDeProveedores);
-      setIsPermisoMoverGeneral(resultPermisoButonOptionMoverGeneral);
-      setIsPermisoMoverLocal(resultPermisoButonOptionMoverLocal);
-
-      // Provicionalmente hasta que se implemente el tipo de servicio de venta
-      setIsPermisoRestarProducto(resultPermisoVentaGeneral);
     }
   };
 

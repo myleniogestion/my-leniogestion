@@ -156,29 +156,48 @@ export default function AccionesView() {
   const [isPermisoModificarEntrada, setIsPermisoModificarEntrada] =
     React.useState(false);
 
-  const checkPermiso = async () => {
-    if (usuario?.token) {
-      const resultAgregarEntrada = await isPermiso(
-        usuario.token,
-        "10",
-        usuario.id_usuario
-      );
-      const resultEliminarEntrada = await isPermiso(
-        usuario.token,
-        "12",
-        usuario.id_usuario
-      );
-      const resultModificarEntrada = await isPermiso(
-        usuario.token,
-        "11",
-        usuario.id_usuario
-      );
-
-      setIsPermisoAgregarEntrada(resultAgregarEntrada);
-      setIsPermisoEliminarEntrada(resultEliminarEntrada);
-      setIsPermisoModificarEntrada(resultModificarEntrada);
-    }
-  };
+    const checkPermiso = async () => {
+      if (usuario?.token) {
+        // Verificar y almacenar el permiso de agregar entrada
+        if (localStorage.getItem("resultAgregarEntrada") === null) {
+          const resultAgregarEntrada = await isPermiso(
+            usuario.token,
+            "10",
+            usuario.id_usuario
+          );
+          setIsPermisoAgregarEntrada(resultAgregarEntrada);
+          localStorage.setItem("resultAgregarEntrada", resultAgregarEntrada);
+        } else {
+          setIsPermisoAgregarEntrada(Boolean(localStorage.getItem("resultAgregarEntrada")));
+        }
+    
+        // Verificar y almacenar el permiso de eliminar entrada
+        if (localStorage.getItem("resultEliminarEntrada") === null) {
+          const resultEliminarEntrada = await isPermiso(
+            usuario.token,
+            "12",
+            usuario.id_usuario
+          );
+          setIsPermisoEliminarEntrada(resultEliminarEntrada);
+          localStorage.setItem("resultEliminarEntrada", resultEliminarEntrada);
+        } else {
+          setIsPermisoEliminarEntrada(Boolean(localStorage.getItem("resultEliminarEntrada")));
+        }
+    
+        // Verificar y almacenar el permiso de modificar entrada
+        if (localStorage.getItem("resultModificarEntrada") === null) {
+          const resultModificarEntrada = await isPermiso(
+            usuario.token,
+            "11",
+            usuario.id_usuario
+          );
+          setIsPermisoModificarEntrada(resultModificarEntrada);
+          localStorage.setItem("resultModificarEntrada", resultModificarEntrada);
+        } else {
+          setIsPermisoModificarEntrada(Boolean(localStorage.getItem("resultModificarEntrada")));
+        }
+      }
+    };
 
   const onDrop = (event: PanGestureHandlerGestureEvent) => {
     // Aquí puedes agregar la lógica para procesar los archivos

@@ -108,29 +108,48 @@ export default function ProveedoresView() {
   const [isPermisoModificarProveedor, setIsPermisoModificarProveedor] =
     React.useState(false);
 
-  const checkPermiso = async () => {
-    if (usuario?.token) {
-      const resultAgregarProveedor = await isPermiso(
-        usuario.token,
-        "35",
-        usuario.id_usuario
-      );
-      const resultEliminarProveedor = await isPermiso(
-        usuario.token,
-        "37",
-        usuario.id_usuario
-      );
-      const resultModificarProveedor = await isPermiso(
-        usuario.token,
-        "36",
-        usuario.id_usuario
-      );
-
-      setIsPermisoAgregarProveedor(resultAgregarProveedor);
-      setIsPermisoEliminarProveedor(resultEliminarProveedor);
-      setIsPermisoModificarProveedor(resultModificarProveedor);
-    }
-  };
+    const checkPermiso = async () => {
+      if (usuario?.token) {
+        // Verificar y almacenar el permiso de agregar proveedor
+        if (localStorage.getItem("resultAgregarProveedor") === null) {
+          const resultAgregarProveedor = await isPermiso(
+            usuario.token,
+            "35",
+            usuario.id_usuario
+          );
+          setIsPermisoAgregarProveedor(resultAgregarProveedor);
+          localStorage.setItem("resultAgregarProveedor", resultAgregarProveedor);
+        } else {
+          setIsPermisoAgregarProveedor(Boolean(localStorage.getItem("resultAgregarProveedor")));
+        }
+    
+        // Verificar y almacenar el permiso de eliminar proveedor
+        if (localStorage.getItem("resultEliminarProveedor") === null) {
+          const resultEliminarProveedor = await isPermiso(
+            usuario.token,
+            "37",
+            usuario.id_usuario
+          );
+          setIsPermisoEliminarProveedor(resultEliminarProveedor);
+          localStorage.setItem("resultEliminarProveedor", resultEliminarProveedor);
+        } else {
+          setIsPermisoEliminarProveedor(Boolean(localStorage.getItem("resultEliminarProveedor")));
+        }
+    
+        // Verificar y almacenar el permiso de modificar proveedor
+        if (localStorage.getItem("resultModificarProveedor") === null) {
+          const resultModificarProveedor = await isPermiso(
+            usuario.token,
+            "36",
+            usuario.id_usuario
+          );
+          setIsPermisoModificarProveedor(resultModificarProveedor);
+          localStorage.setItem("resultModificarProveedor", resultModificarProveedor);
+        } else {
+          setIsPermisoModificarProveedor(Boolean(localStorage.getItem("resultModificarProveedor")));
+        }
+      }
+    };
 
   const onDrop = (event: PanGestureHandlerGestureEvent) => {
     // Aquí puedes agregar la lógica para procesar los archivos

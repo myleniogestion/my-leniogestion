@@ -481,9 +481,15 @@ export default function ServiciosView() {
   const [idTiendaSearch, setIdTiendaSearch] = useState("");
   const [rangoPrecioDesdeSearch, setRangoPrecioDesdeSearch] = useState("");
   const [rangoPrecioHastaSearch, setRangoPrecioHastaSearch] = useState("");
-  const [fechaDiaDesdeSearch, setFechaDiaDesdeSearch] = useState("1");
-  const [fechaMesDesdeSearch, setFechaMesdesdeSearch] = useState("1");
-  const [fechaAnnoDesdeSearch, setFechaAnnoDesdeSearch] = useState("2024");
+  const [fechaDiaDesdeSearch, setFechaDiaDesdeSearch] = useState(
+    String(parseInt(day))
+  );
+  const [fechaMesDesdeSearch, setFechaMesdesdeSearch] = useState(
+    String(parseInt(month))
+  );
+  const [fechaAnnoDesdeSearch, setFechaAnnoDesdeSearch] = useState(
+    String(parseInt(year))
+  );
 
   const [fechaDiaHastaSearch, setFechaDiaHastaSearch] = useState(
     String(parseInt(day))

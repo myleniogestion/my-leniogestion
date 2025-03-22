@@ -270,21 +270,35 @@ export default function MovimientosView() {
 
   const checkPermiso = async () => {
     if (usuario?.token) {
-      const resultPermisoOptionMoverLocal = await isPermiso(
-        usuario.token,
-        "30",
-        usuario.id_usuario
-      );
-      const resultPermisoOptionMoverGeneral = await isPermiso(
-        usuario.token,
-        "31",
-        usuario.id_usuario
-      );
-
+      // Verificar y almacenar el permiso de mover local
+      if (localStorage.getItem("resultPermisoOptionMoverLocal") === null) {
+        const resultPermisoOptionMoverLocal = await isPermiso(
+          usuario.token,
+          "30",
+          usuario.id_usuario
+        );
+        setIsPermisoOpcionesDeCeldaMoverLocal(resultPermisoOptionMoverLocal);
+        localStorage.setItem("resultPermisoOptionMoverLocal", resultPermisoOptionMoverLocal);
+      } else {
+        setIsPermisoOpcionesDeCeldaMoverLocal(Boolean(localStorage.getItem("resultPermisoOptionMoverLocal")));
+      }
+  
+      // Verificar y almacenar el permiso de mover general
+      if (localStorage.getItem("resultPermisoOptionMoverGeneral") === null) {
+        const resultPermisoOptionMoverGeneral = await isPermiso(
+          usuario.token,
+          "31",
+          usuario.id_usuario
+        );
+        setIsPermisoOpcionesDeCeldaMoverGeneral(resultPermisoOptionMoverGeneral);
+        localStorage.setItem("resultPermisoOptionMoverGeneral", resultPermisoOptionMoverGeneral);
+      } else {
+        setIsPermisoOpcionesDeCeldaMoverGeneral(Boolean(localStorage.getItem("resultPermisoOptionMoverGeneral")));
+      }
+  
+      // Establecer permisos fijos (eliminar y modificar movimiento)
       setIsPermisoEliminarMovimiento(true);
       setIsPermisoModificarMovimiento(true);
-      setIsPermisoOpcionesDeCeldaMoverLocal(resultPermisoOptionMoverLocal);
-      setIsPermisoOpcionesDeCeldaMoverGeneral(resultPermisoOptionMoverGeneral);
     }
   };
 

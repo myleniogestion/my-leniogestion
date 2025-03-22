@@ -146,29 +146,48 @@ export default function UsuariosView() {
   const [isPermisoModificarGerarquico, setIsPermisoModificarGerarquico] =
     useState(false);
 
-  const checkPermiso = async () => {
-    if (usuario?.token) {
-      const resultAgregarUsuario = await isPermiso(
-        usuario.token,
-        "1",
-        usuario.id_usuario
-      );
-      const resultEliminarUsuario = await isPermiso(
-        usuario.token,
-        "3",
-        usuario.id_usuario
-      );
-      const resultModificarUsuario = await isPermiso(
-        usuario.token,
-        "2",
-        usuario.id_usuario
-      );
-
-      setIsPermisoAgregarProveedor(resultAgregarUsuario);
-      setIsPermisoEliminarProveedor(resultEliminarUsuario);
-      setIsPermisoModificarProveedor(resultModificarUsuario);
-    }
-  };
+    const checkPermiso = async () => {
+      if (usuario?.token) {
+        // Verificar y almacenar el permiso de agregar usuario
+        if (localStorage.getItem("resultAgregarUsuario") === null) {
+          const resultAgregarUsuario = await isPermiso(
+            usuario.token,
+            "1",
+            usuario.id_usuario
+          );
+          setIsPermisoAgregarProveedor(resultAgregarUsuario);
+          localStorage.setItem("resultAgregarUsuario", resultAgregarUsuario);
+        } else {
+          setIsPermisoAgregarProveedor(Boolean(localStorage.getItem("resultAgregarUsuario")));
+        }
+    
+        // Verificar y almacenar el permiso de eliminar usuario
+        if (localStorage.getItem("resultEliminarUsuario") === null) {
+          const resultEliminarUsuario = await isPermiso(
+            usuario.token,
+            "3",
+            usuario.id_usuario
+          );
+          setIsPermisoEliminarProveedor(resultEliminarUsuario);
+          localStorage.setItem("resultEliminarUsuario", resultEliminarUsuario);
+        } else {
+          setIsPermisoEliminarProveedor(Boolean(localStorage.getItem("resultEliminarUsuario")));
+        }
+    
+        // Verificar y almacenar el permiso de modificar usuario
+        if (localStorage.getItem("resultModificarUsuario") === null) {
+          const resultModificarUsuario = await isPermiso(
+            usuario.token,
+            "2",
+            usuario.id_usuario
+          );
+          setIsPermisoModificarProveedor(resultModificarUsuario);
+          localStorage.setItem("resultModificarUsuario", resultModificarUsuario);
+        } else {
+          setIsPermisoModificarProveedor(Boolean(localStorage.getItem("resultModificarUsuario")));
+        }
+      }
+    };
 
   const onDrop = (event: PanGestureHandlerGestureEvent) => {
     // Aquí puedes agregar la lógica para procesar los archivos

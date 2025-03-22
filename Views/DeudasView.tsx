@@ -265,9 +265,12 @@ export default function DeudasView() {
   const [isModalMensajeView, setModalMensajeView] = React.useState(false);
   const [isModalAddPagoDeudaView, setIsModalAddPagoDeudaView] =
     React.useState(false);
-  const [cantidadUSDAddPagoDeuda, setCantidadUSDAddPagoDeuda] = React.useState("");
-  const [cantidadCUPAddPagoDeuda, setCantidadCUPAddPagoDeuda] = React.useState("");
+  const [cantidadUSDAddPagoDeuda, setCantidadUSDAddPagoDeuda] =
+    React.useState("");
+  const [cantidadCUPAddPagoDeuda, setCantidadCUPAddPagoDeuda] =
+    React.useState("");
   const [total_pagado, setTotal_pagado] = React.useState("");
+  const [deudaUnitaria, setDeudaUnitaria] = React.useState("");
   const [cantidad_restante, setCantidad_restante] = React.useState("");
   const [modalMensaje, setModalMensaje] = React.useState("");
   const [isReflechModalMensajeView, setReflechModalMensajeView] =
@@ -296,40 +299,79 @@ export default function DeudasView() {
 
   const checkPermiso = async () => {
     if (usuario?.token) {
-      const resultAgregarServicio = await isPermiso(
-        usuario.token,
-        "26",
-        usuario.id_usuario
-      );
-      const resultEliminarServicio = await isPermiso(
-        usuario.token,
-        "25",
-        usuario.id_usuario
-      );
-      const resultModificarServicio = await isPermiso(
-        usuario.token,
-        "24",
-        usuario.id_usuario
-      );
-      const resulServicioLocal = await isPermiso(
-        usuario.token,
-        "26",
-        usuario.id_usuario
-      );
-      const resultServicioGeneral = await isPermiso(
-        usuario.token,
-        "27",
-        usuario.id_usuario
-      );
-
-      // cargar cambio de moneda
-      setCambioMoneda(await getValorMonedaUSD(usuario.token));
-
-      setIsPermisoServicioLocal(resulServicioLocal);
-      setIsPermisoServicioGeneral(resultServicioGeneral);
-      setIsPermisoAgregarServicio(resultAgregarServicio);
-      setIsPermisoEliminarServicio(resultEliminarServicio);
-      setIsPermisoModificarServicio(resultModificarServicio);
+      // Verificar y almacenar el permiso de agregar servicio
+      if (localStorage.getItem("resultAgregarServicio") === null) {
+        const resultAgregarServicio = await isPermiso(
+          usuario.token,
+          "26",
+          usuario.id_usuario
+        );
+        setIsPermisoAgregarServicio(resultAgregarServicio);
+        localStorage.setItem("resultAgregarServicio", resultAgregarServicio);
+      } else {
+        setIsPermisoAgregarServicio(Boolean(localStorage.getItem("resultAgregarServicio")));
+      }
+  
+      // Verificar y almacenar el permiso de eliminar servicio
+      if (localStorage.getItem("resultEliminarServicio") === null) {
+        const resultEliminarServicio = await isPermiso(
+          usuario.token,
+          "25",
+          usuario.id_usuario
+        );
+        setIsPermisoEliminarServicio(resultEliminarServicio);
+        localStorage.setItem("resultEliminarServicio", resultEliminarServicio);
+      } else {
+        setIsPermisoEliminarServicio(Boolean(localStorage.getItem("resultEliminarServicio")));
+      }
+  
+      // Verificar y almacenar el permiso de modificar servicio
+      if (localStorage.getItem("resultModificarServicio") === null) {
+        const resultModificarServicio = await isPermiso(
+          usuario.token,
+          "24",
+          usuario.id_usuario
+        );
+        setIsPermisoModificarServicio(resultModificarServicio);
+        localStorage.setItem("resultModificarServicio", resultModificarServicio);
+      } else {
+        setIsPermisoModificarServicio(Boolean(localStorage.getItem("resultModificarServicio")));
+      }
+  
+      // Verificar y almacenar el permiso de servicio local
+      if (localStorage.getItem("resulServicioLocal") === null) {
+        const resulServicioLocal = await isPermiso(
+          usuario.token,
+          "26",
+          usuario.id_usuario
+        );
+        setIsPermisoServicioLocal(resulServicioLocal);
+        localStorage.setItem("resulServicioLocal", resulServicioLocal);
+      } else {
+        setIsPermisoServicioLocal(Boolean(localStorage.getItem("resulServicioLocal")));
+      }
+  
+      // Verificar y almacenar el permiso de servicio general
+      if (localStorage.getItem("resultServicioGeneral") === null) {
+        const resultServicioGeneral = await isPermiso(
+          usuario.token,
+          "27",
+          usuario.id_usuario
+        );
+        setIsPermisoServicioGeneral(resultServicioGeneral);
+        localStorage.setItem("resultServicioGeneral", resultServicioGeneral);
+      } else {
+        setIsPermisoServicioGeneral(Boolean(localStorage.getItem("resultServicioGeneral")));
+      }
+  
+      // Cargar cambio de moneda
+      if (localStorage.getItem("cambioMoneda") === null) {
+        const cambioMoneda = await getValorMonedaUSD(usuario.token);
+        setCambioMoneda(cambioMoneda);
+        localStorage.setItem("cambioMoneda", cambioMoneda.toString());
+      } else {
+        setCambioMoneda(parseFloat(localStorage.getItem("cambioMoneda")));
+      }
     }
   };
 
@@ -678,7 +720,9 @@ export default function DeudasView() {
           setPrecioCUPDetails(
             String(parseFloat(resultDeuda.deuda.servicio.precio) * cambioMoneda)
           );
-          setCostoPromedioProductoUSDDetails(resultventa.producto.costo_acumulado);
+          setCostoPromedioProductoUSDDetails(
+            resultventa.producto.costo_acumulado
+          );
         } else {
           // Cargar datos vacios para ingrezar un nuevo producto
 
@@ -725,6 +769,7 @@ export default function DeudasView() {
         setIdDeudaDetails(result.deuda.id_deuda);
         setCantidad_restante(result.cantidad_restante);
         setTotal_pagado(result.total_pagado);
+        setDeudaUnitaria(result.deuda.deuda);
         setIdServicioDetails(result.deuda.servicio.id_servicio);
         setIdClienteDetails(result.deuda.servicio.cliente.id_cliente);
         setIdTipoServicioDetails(
@@ -745,8 +790,7 @@ export default function DeudasView() {
         setPagoDeudaByDeudaDetails(result.deuda.pagos_deuda);
         // Si es un tip de servicios de venta se carga el producto que se halla vendiod o que se esté vendiendo con todos su datos
         if (
-          parseInt(result.deuda.servicio.tipo_servicio.id_tipo_servicio) ===
-            2
+          parseInt(result.deuda.servicio.tipo_servicio.id_tipo_servicio) === 2
         ) {
           const resultventa = await getVentaByIDOfServicio(
             usuario.token,
@@ -766,7 +810,9 @@ export default function DeudasView() {
             setPrecioCUPDetails(
               String(parseFloat(result.deuda.servicio.precio) * cambioMoneda)
             );
-            setCostoPromedioProductoUSDDetails(resultventa.producto.costo_acumulado);
+            setCostoPromedioProductoUSDDetails(
+              resultventa.producto.costo_acumulado
+            );
           } else {
             // Cargar datos vacios para ingrezar un nuevo producto
 
@@ -813,12 +859,6 @@ export default function DeudasView() {
     fechaHasta: string
   ): Promise<Deuda[] | null> => {
     if (usuario?.token) {
-      const resultServicioGeneral = await isPermiso(
-        usuario.token,
-        "27",
-        usuario.id_usuario
-      );
-
       try {
         const result = await filtrarDeudas(
           usuario.token,
@@ -861,7 +901,7 @@ export default function DeudasView() {
                 ? element.deuda.servicio.venta.cantidad
                 : "", // Verifica si 'venta' no es null
               devuelto: element.deuda.servicio.devuelto,
-              deuda: element.deuda.deuda,
+              deuda: (element.deuda.deuda * (element.deuda.servicio.venta? element.deuda.servicio.venta.cantidad : 1)),
               pagos_deuda: element.deuda.pagos_deuda,
               total_pagado: element.total_pagado,
               cantidad_restante: element.cantidad_restante,
@@ -1023,7 +1063,7 @@ export default function DeudasView() {
             sortServicios.criterioOrden,
             auxOrdenar
           );
-        }else{
+        } else {
           deudasFiltradas = await ordenarServicios(
             usuario.token,
             deudasFiltradas,
@@ -1047,12 +1087,9 @@ export default function DeudasView() {
       `${fechaAnnoDesdeSearch}-${fechaMesDesdeSearch}-${fechaDiaDesdeSearch}`,
       `${fechaAnnoHastaSearch}-${fechaMesHastaSearch}-${fechaDiaHastaSearch}`
     );
-  }, [
-    sortServicios,
-    selectedOptionTipoOrden,
-  ]);
-  useEffect(() =>{
-    setSelecterActivoDetails("")
+  }, [sortServicios, selectedOptionTipoOrden]);
+  useEffect(() => {
+    setSelecterActivoDetails("");
   }, [
     fechaDiaDesdeSearch,
     fechaMesDesdeSearch,
@@ -1060,7 +1097,7 @@ export default function DeudasView() {
     fechaDiaHastaSearch,
     fechaMesHastaSearch,
     fechaAnnoHastaSearch,
-  ])
+  ]);
 
   const auxSetModalProovedoresDates = () => {
     setIsDateLoaded(false);
@@ -1147,24 +1184,29 @@ export default function DeudasView() {
       let flag: boolean = true;
       let validarCampos: string =
         "ERROR AL INGRESAR PAGO DE DEUDA. Por favor verifique los siguientes campos:\n";
-      
+
       if (flag) {
-          const currentDate = new Date();
-          const year = String(currentDate.getFullYear());
-          const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
-          const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
+        const currentDate = new Date();
+        const year = String(currentDate.getFullYear());
+        const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
+        const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
 
-          const resultPagoDeuda = await addPagoDeuda(usuario.token, cantidadUSDAddPagoDeuda, `${year}-${month}-${day}`, idDeudaDetails);
-          pagoDeudaByDeudaDetails.push(resultPagoDeuda);
+        const resultPagoDeuda = await addPagoDeuda(
+          usuario.token,
+          cantidadUSDAddPagoDeuda,
+          `${year}-${month}-${day}`,
+          idDeudaDetails
+        );
+        pagoDeudaByDeudaDetails.push(resultPagoDeuda);
 
-          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} agregó un pago de deuda de una cantidad de ${cantidadUSDAddPagoDeuda}`;
-          await addAccionUsuario(
-            usuario.token,
-            auxAddAccionUsuarioDescripcion,
-            `${year}-${month}-${day}`,
-            usuario.id_usuario,
-            8
-          );
+        let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} agregó un pago de deuda de una cantidad de ${cantidadUSDAddPagoDeuda}`;
+        await addAccionUsuario(
+          usuario.token,
+          auxAddAccionUsuarioDescripcion,
+          `${year}-${month}-${day}`,
+          usuario.id_usuario,
+          8
+        );
 
         setIsBotonModalMesajeVisible(true);
         setModalMensaje(`El Pago de Deuda se agregó con éxito`);
@@ -1372,7 +1414,7 @@ export default function DeudasView() {
         }
         // Si se cambio de tipo de servicio venta a otro
         if (
-          (parseInt(idTipoServicioDetailsViejo) === 2) &&
+          parseInt(idTipoServicioDetailsViejo) === 2 &&
           parseInt(idTipoServicioDetails) !== 2 &&
           parseInt(idTipoServicioDetails) !== 4
         ) {
@@ -1601,7 +1643,11 @@ export default function DeudasView() {
   };
 
   // Columnas para llenar la tabla
-  const columnasMyDateTablePagoDeudaModal = ["C.Pagada USD", "C.Pagada CUP", "Fecha"];
+  const columnasMyDateTablePagoDeudaModal = [
+    "C.Pagada USD",
+    "C.Pagada CUP",
+    "Fecha",
+  ];
   const columnasMyDateTableDesktop = [
     "Cliente",
     "Tienda",
@@ -2746,7 +2792,18 @@ export default function DeudasView() {
                           marginTop: "3%", // Margen adicional entre botones
                         }}
                         onPress={() => {
-                          if (parseFloat(cantidad_restante) > 0) {
+                          // Sumar todos los valores de 'pagada' en el array
+                          const sumaPagada = pagoDeudaByDeudaDetails.reduce(
+                            (total, pago) => {
+                              return total + parseFloat(pago.pagada);
+                            },
+                            0
+                          );
+
+                          // Usar la suma en la condición
+                          if (
+                            parseFloat(precioUSDDetails) * parseInt(cantidadProductoDetails) - sumaPagada > 0
+                          ) {
                             setIsModalAddPagoDeudaView(true);
                           } else {
                             setModalMensajeView(true);
@@ -2967,7 +3024,9 @@ export default function DeudasView() {
                       : numericValue;
 
                   setCantidadUSDAddPagoDeuda(validNumericValue);
-                  setCantidadCUPAddPagoDeuda((validNumericValue * cambioMoneda).toFixed(2))
+                  setCantidadCUPAddPagoDeuda(
+                    (validNumericValue * cambioMoneda).toFixed(2)
+                  );
                 }}
                 cursorColor={Colors.azul_Oscuro}
                 editable={true}
@@ -3011,7 +3070,9 @@ export default function DeudasView() {
                       : numericValue;
 
                   setCantidadCUPAddPagoDeuda(validNumericValue);
-                  setCantidadUSDAddPagoDeuda(String((validNumericValue / cambioMoneda).toFixed(5)));
+                  setCantidadUSDAddPagoDeuda(
+                    String((validNumericValue / cambioMoneda).toFixed(5))
+                  );
                 }}
                 cursorColor={Colors.azul_Oscuro}
                 editable={true}
@@ -3021,13 +3082,12 @@ export default function DeudasView() {
               <TouchableOpacity
                 onPress={() => {
                   if (
-                    parseFloat(cantidadUSDAddPagoDeuda) <=
-                    parseFloat(cantidad_restante)
+                    parseFloat(cantidadUSDAddPagoDeuda) <= parseFloat((parseFloat(deudaUnitaria) * parseFloat(cantidadProductoDetails) - parseFloat(total_pagado)).toFixed(5))
                   ) {
-                    addNewDeuda()
+                    addNewDeuda();
                   } else {
                     setModalMensaje(
-                      `La cantidad de el pago de la deuda ${cantidadUSDAddPagoDeuda} es mayor a la cantidad faltante de la deuda ${cantidad_restante}`
+                      `La cantidad de el pago de la deuda ${cantidadUSDAddPagoDeuda} es mayor a la cantidad faltante de la deuda ${((parseFloat(deudaUnitaria) * parseFloat(cantidadProductoDetails) - parseFloat(total_pagado)) * cambioMoneda).toFixed(0)}`
                     );
                     setModalMensajeView(true);
                     setReflechModalMensajeView(false);
@@ -3874,7 +3934,18 @@ export default function DeudasView() {
                           marginTop: "3%", // Margen adicional entre botones
                         }}
                         onPress={() => {
-                          if (parseFloat(cantidad_restante) > 0) {
+                          // Sumar todos los valores de 'pagada' en el array
+                          const sumaPagada = pagoDeudaByDeudaDetails.reduce(
+                            (total, pago) => {
+                              return total + parseFloat(pago.pagada);
+                            },
+                            0
+                          );
+
+                          // Usar la suma en la condición
+                          if (
+                            parseFloat(precioUSDDetails) * parseInt(cantidadProductoDetails) - sumaPagada > 0
+                          ) {
                             setIsModalAddPagoDeudaView(true);
                           } else {
                             setModalMensajeView(true);
@@ -4099,7 +4170,9 @@ export default function DeudasView() {
                       : numericValue;
 
                   setCantidadUSDAddPagoDeuda(validNumericValue);
-                  setCantidadCUPAddPagoDeuda((validNumericValue * cambioMoneda).toFixed(2))
+                  setCantidadCUPAddPagoDeuda(
+                    (validNumericValue * cambioMoneda).toFixed(2)
+                  );
                 }}
                 cursorColor={Colors.azul_Oscuro}
                 editable={true}
@@ -4143,7 +4216,9 @@ export default function DeudasView() {
                       : numericValue;
 
                   setCantidadCUPAddPagoDeuda(validNumericValue);
-                  setCantidadUSDAddPagoDeuda(String((validNumericValue / cambioMoneda).toFixed(5)));
+                  setCantidadUSDAddPagoDeuda(
+                    String((validNumericValue / cambioMoneda).toFixed(5))
+                  );
                 }}
                 cursorColor={Colors.azul_Oscuro}
                 editable={true}
@@ -4153,13 +4228,16 @@ export default function DeudasView() {
               <TouchableOpacity
                 onPress={() => {
                   if (
-                    parseFloat(cantidadUSDAddPagoDeuda) <=
-                    parseFloat(cantidad_restante)
+                    parseFloat(cantidadUSDAddPagoDeuda) <= parseFloat((parseFloat(deudaUnitaria) * parseFloat(cantidadProductoDetails) - parseFloat(total_pagado)).toFixed(5))
                   ) {
-                    addNewDeuda()
+                    addNewDeuda();
                   } else {
                     setModalMensaje(
-                      `La cantidad de el pago de la deuda ${cantidadUSDAddPagoDeuda} es mayor a la cantidad faltante de la deuda ${cantidad_restante}`
+                      `La cantidad de el pago de la deuda ${(
+                        parseFloat(cantidadUSDAddPagoDeuda) * cambioMoneda
+                      ).toFixed(
+                        0
+                      )} es mayor a la cantidad faltante de la deuda ${((parseFloat(deudaUnitaria) * parseFloat(cantidadProductoDetails) - parseFloat(total_pagado)) * cambioMoneda).toFixed(0)}`
                     );
                     setModalMensajeView(true);
                     setReflechModalMensajeView(false);

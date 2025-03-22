@@ -121,29 +121,48 @@ export default function ClientesView() {
   const [isPermisoModificarCliente, setIsPermisoModificarCliente] =
     React.useState(false);
 
-  const checkPermiso = async () => {
-    if (usuario?.token) {
-      const resultEliminarClienteView = await isPermiso(
-        usuario.token,
-        "18",
-        usuario.id_usuario
-      );
-      const resultModificarClienteView = await isPermiso(
-        usuario.token,
-        "17",
-        usuario.id_usuario
-      );
-      const resultAgregarClienteView = await isPermiso(
-        usuario.token,
-        "16",
-        usuario.id_usuario
-      );
-
-      setIsPermisoAgregarCliente(resultAgregarClienteView);
-      setIsPermisoEliminarCliente(resultEliminarClienteView);
-      setIsPermisoModificarCliente(resultModificarClienteView);
-    }
-  };
+    const checkPermiso = async () => {
+      if (usuario?.token) {
+        // Verificar y almacenar el permiso de agregar cliente
+        if (localStorage.getItem("resultAgregarClienteView") === null) {
+          const resultAgregarClienteView = await isPermiso(
+            usuario.token,
+            "16",
+            usuario.id_usuario
+          );
+          setIsPermisoAgregarCliente(resultAgregarClienteView);
+          localStorage.setItem("resultAgregarClienteView", resultAgregarClienteView);
+        } else {
+          setIsPermisoAgregarCliente(Boolean(localStorage.getItem("resultAgregarClienteView")));
+        }
+    
+        // Verificar y almacenar el permiso de eliminar cliente
+        if (localStorage.getItem("resultEliminarClienteView") === null) {
+          const resultEliminarClienteView = await isPermiso(
+            usuario.token,
+            "18",
+            usuario.id_usuario
+          );
+          setIsPermisoEliminarCliente(resultEliminarClienteView);
+          localStorage.setItem("resultEliminarClienteView", resultEliminarClienteView);
+        } else {
+          setIsPermisoEliminarCliente(Boolean(localStorage.getItem("resultEliminarClienteView")));
+        }
+    
+        // Verificar y almacenar el permiso de modificar cliente
+        if (localStorage.getItem("resultModificarClienteView") === null) {
+          const resultModificarClienteView = await isPermiso(
+            usuario.token,
+            "17",
+            usuario.id_usuario
+          );
+          setIsPermisoModificarCliente(resultModificarClienteView);
+          localStorage.setItem("resultModificarClienteView", resultModificarClienteView);
+        } else {
+          setIsPermisoModificarCliente(Boolean(localStorage.getItem("resultModificarClienteView")));
+        }
+      }
+    };
 
   const onDrop = (event: PanGestureHandlerGestureEvent) => {
     // Aquí puedes agregar la lógica para procesar los archivos
