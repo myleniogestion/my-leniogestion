@@ -297,9 +297,15 @@ export default function AccionesView() {
   //Variables Para los datos de busqueda
   const [nombreUsuarioSearch, setNombreUsuarioSearch] = useState("");
   const [descripcionSearch, setDescripcionSearch] = useState("");
-  const [fechaDiaDesdeSearch, setFechaDiaDesdeSearch] = useState("1");
-  const [fechaMesDesdeSearch, setFechaMesdesdeSearch] = useState("1");
-  const [fechaAnnoDesdeSearch, setFechaAnnoDesdeSearch] = useState("2024");
+  const [fechaDiaDesdeSearch, setFechaDiaDesdeSearch] = useState(
+    String(parseInt(day))
+  );
+  const [fechaMesDesdeSearch, setFechaMesdesdeSearch] = useState(
+    String(parseInt(month))
+  );
+  const [fechaAnnoDesdeSearch, setFechaAnnoDesdeSearch] = useState(
+    String(parseInt(year))
+  );
   const [selectedValueNombreTipoAccion, setSelectedValueNombreTipoAccion] =
     useState<string | null>(null);
   const [dropdownItemsTipoAccion, setDropDownItemsTipoAccion] = useState<

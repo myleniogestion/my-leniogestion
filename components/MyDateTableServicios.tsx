@@ -185,7 +185,8 @@ export const MyDateTableServicios: React.FC<Props> = ({
     let sumaMinoristaUSD = 0;
     let sumaMayoristaUSD = 0;
     let sumaTransferencias = 0;
-
+    console.log(items);
+    
     items.forEach((item) => {
       if (!item.devuelto) {
         sumaTransferencias += parseFloat(item.cantidad_transferida)
@@ -406,7 +407,10 @@ export const MyDateTableServicios: React.FC<Props> = ({
               <DataTable.Row
                 key={item.id_Servicio}
                 onPress={() => detailsModalView(item.id_Servicio)}
-                style={{ justifyContent: "space-around" }} // Mantiene el espaciado entre las celdas
+                style={[
+                  { justifyContent: "space-around" }, // Estilo base
+                  item.id_Deuda === null && { borderWidth: 2, borderColor: "red" }, // Estilo condicional
+                ]}
               >
                 {/* Primera celda - Nombre Cliente*/}
                 <DataTable.Cell

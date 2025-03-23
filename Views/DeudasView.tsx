@@ -1652,10 +1652,9 @@ export default function DeudasView() {
     "Cliente",
     "Tienda",
     "Producto",
-    "Deuda USD",
     "Deuda CUP",
-    "C.Sal USD",
     "C.Sal CUP",
+    "C.Faltnte",
     "Saldada",
     "Fecha",
   ];
@@ -1671,10 +1670,9 @@ export default function DeudasView() {
     "Cliente",
     "Tienda",
     "Producto",
-    "Deuda USD",
     "Deuda CUP",
-    "C.Sal USD",
     "C.Sal CUP",
+    "C.Faltnte",
     "Saldada",
     "Fecha",
   ];

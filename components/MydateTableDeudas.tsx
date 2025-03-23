@@ -51,7 +51,6 @@ export interface Deuda {
   pagos_deuda: any[];
   total_pagado: number;
   cantidad_restante: number;
-
 }
 
 interface Props {
@@ -208,21 +207,36 @@ export const MyDateTableDeudas: React.FC<Props> = ({
   };
 
   // Metodo para calcular si la deuda está saldada o no
-  const isDeudaSaldadaFromTable = (pago_deudas: any[], deuda: string) =>{
+  const isDeudaSaldadaFromTable = (pago_deudas: any[], deuda: string) => {
     let suma: number = 0.0;
     if (pago_deudas) {
       pago_deudas.forEach((pago) => {
         suma += parseFloat(pago.pagada);
-      })
+      });
       if (parseFloat(deuda) === suma) {
-        return <Image source={require("../images/aprobado.png")} style={{width: 20, height: 20}} />
-      }else{
-        return <Image source={require("../images/candelado.png")} style={{width: 20, height: 20}} />
+        return (
+          <Image
+            source={require("../images/aprobado.png")}
+            style={{ width: 20, height: 20 }}
+          />
+        );
+      } else {
+        return (
+          <Image
+            source={require("../images/candelado.png")}
+            style={{ width: 20, height: 20 }}
+          />
+        );
       }
-    }else{
-      return <Image source={require("../images/candelado.png")} style={{width: 20, height: 20}} />
+    } else {
+      return (
+        <Image
+          source={require("../images/candelado.png")}
+          style={{ width: 20, height: 20 }}
+        />
+      );
     }
-  }
+  };
 
   // Auxliliar para ordenar entradas
   const sortEntradasAux = (column: string) => {
@@ -438,23 +452,6 @@ export const MyDateTableDeudas: React.FC<Props> = ({
                   <Text>{item.nombreProducto ? item.nombreProducto : ""}</Text>
                 </DataTable.Cell>
 
-                {/* Cuarta celda - Precio */}
-                <DataTable.Cell
-                  numeric
-                  style={[
-                    styles.handerRow,
-                    { justifyContent: "center", alignItems: "center" },
-                  ]} // Centrar el texto
-                >
-                  <Text
-                    style={{
-                      color: item.devuelto ? Colors.gris_claro : Colors.negro,
-                    }}
-                  >
-                    {(parseFloat(item.precio) * parseInt(item.cantidad)).toFixed(5)}
-                  </Text>
-                </DataTable.Cell>
-
                 {/* Cuarta celda - Precio CUP */}
                 <DataTable.Cell
                   numeric
@@ -468,19 +465,12 @@ export const MyDateTableDeudas: React.FC<Props> = ({
                       color: item.devuelto ? Colors.gris_claro : Colors.negro,
                     }}
                   >
-                    {((parseFloat(item.precio) * parseInt(item.cantidad)) * cambioMoneda).toFixed(2)}
+                    {(
+                      parseFloat(item.precio) *
+                      parseInt(item.cantidad) *
+                      cambioMoneda
+                    ).toFixed(0)}
                   </Text>
-                </DataTable.Cell>
-
-                {/* Cuarta celda - Cantidad Producto */}
-                <DataTable.Cell
-                  numeric
-                  style={[
-                    styles.handerRow,
-                    { justifyContent: "center", alignItems: "center" },
-                  ]} // Centrar el texto
-                >
-                  <Text>{item.total_pagado.toFixed(5)}</Text>
                 </DataTable.Cell>
 
                 {/* Quinta celda - Deuda*/}
@@ -491,7 +481,25 @@ export const MyDateTableDeudas: React.FC<Props> = ({
                     { justifyContent: "center", alignItems: "center" },
                   ]} // Centrar el texto
                 >
-                  <Text>{(item.total_pagado * cambioMoneda).toFixed(2)}</Text>
+                  <Text>{(item.total_pagado * cambioMoneda).toFixed(0)}</Text>
+                </DataTable.Cell>
+
+                {/* Quinta celda - Deuda*/}
+                <DataTable.Cell
+                  numeric
+                  style={[
+                    styles.handerRow,
+                    { justifyContent: "center", alignItems: "center" },
+                  ]} // Centrar el texto
+                >
+                  <Text>
+                    {(
+                      parseFloat(item.precio) *
+                        parseInt(item.cantidad) *
+                        cambioMoneda -
+                      item.total_pagado * cambioMoneda
+                    ).toFixed(0)}
+                  </Text>
                 </DataTable.Cell>
 
                 {/* Quinta celda - Saldada*/}
@@ -502,7 +510,9 @@ export const MyDateTableDeudas: React.FC<Props> = ({
                     { justifyContent: "center", alignItems: "center" },
                   ]} // Centrar el texto
                 >
-                  <Text>{isDeudaSaldadaFromTable(item.pagos_deuda, item.deuda)}</Text>
+                  <Text>
+                    {isDeudaSaldadaFromTable(item.pagos_deuda, item.deuda)}
+                  </Text>
                 </DataTable.Cell>
 
                 {/* Quinta celda - Fecha */}
@@ -1049,23 +1059,6 @@ export const MyDateTableDeudas: React.FC<Props> = ({
                   <Text>{item.nombreProducto ? item.nombreProducto : ""}</Text>
                 </DataTable.Cell>
 
-                {/* Cuarta celda - Precio USD */}
-                <DataTable.Cell
-                  numeric
-                  style={[
-                    styles.handerRow,
-                    { justifyContent: "center", alignItems: "center" }, // Centrar contenido
-                  ]}
-                >
-                  <Text
-                    style={{
-                      color: item.devuelto ? Colors.gris_claro : Colors.negro,
-                    }}
-                  >
-                    {(parseFloat(item.precio) * parseInt(item.cantidad)).toFixed(5)}
-                  </Text>
-                </DataTable.Cell>
-
                 {/* Cuarta celda - Precio CUP */}
                 <DataTable.Cell
                   numeric
@@ -1079,19 +1072,12 @@ export const MyDateTableDeudas: React.FC<Props> = ({
                       color: item.devuelto ? Colors.gris_claro : Colors.negro,
                     }}
                   >
-                    {((parseFloat(item.precio) * parseInt(item.cantidad)) * cambioMoneda).toFixed(2)}
+                    {(
+                      parseFloat(item.precio) *
+                      parseInt(item.cantidad) *
+                      cambioMoneda
+                    ).toFixed(0)}
                   </Text>
-                </DataTable.Cell>
-
-                {/* Cuarta celda - Cantidad Producto */}
-                <DataTable.Cell
-                  numeric
-                  style={[
-                    styles.handerRow,
-                    { justifyContent: "center", alignItems: "center" },
-                  ]} // Centrar el texto
-                >
-                  <Text>{item.total_pagado.toFixed(5)}</Text>
                 </DataTable.Cell>
 
                 {/* Quinta celda - Deuda*/}
@@ -1102,7 +1088,25 @@ export const MyDateTableDeudas: React.FC<Props> = ({
                     { justifyContent: "center", alignItems: "center" },
                   ]} // Centrar el texto
                 >
-                  <Text>{(item.total_pagado * cambioMoneda).toFixed(2)}</Text>
+                  <Text>{(item.total_pagado * cambioMoneda).toFixed(0)}</Text>
+                </DataTable.Cell>
+
+                {/* Quinta celda - Deuda*/}
+                <DataTable.Cell
+                  numeric
+                  style={[
+                    styles.handerRow,
+                    { justifyContent: "center", alignItems: "center" },
+                  ]} // Centrar el texto
+                >
+                  <Text>
+                    {(
+                      parseFloat(item.precio) *
+                        parseInt(item.cantidad) *
+                        cambioMoneda -
+                      item.total_pagado * cambioMoneda
+                    ).toFixed(0)}
+                  </Text>
                 </DataTable.Cell>
 
                 {/* Quinta celda - Saldada*/}
@@ -1113,7 +1117,9 @@ export const MyDateTableDeudas: React.FC<Props> = ({
                     { justifyContent: "center", alignItems: "center" },
                   ]} // Centrar el texto
                 >
-                  <Text>{isDeudaSaldadaFromTable(item.pagos_deuda, item.deuda)}</Text>
+                  <Text>
+                    {isDeudaSaldadaFromTable(item.pagos_deuda, item.deuda)}
+                  </Text>
                 </DataTable.Cell>
 
                 {/* Quinta celda - Fecha*/}

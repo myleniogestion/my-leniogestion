@@ -54,7 +54,7 @@ import {
 import { ProductoPiker } from "../components/MyDateTableProductos";
 import { useModalEntradasDates } from "../contexts/AuxiliarContextModalEntradas";
 import { MyDateInput } from "../components/MyDateInput";
-import { MyDateInputVencimiento } from "../components/MyDateInputVencimiento"
+import { MyDateInputVencimiento } from "../components/MyDateInputVencimiento";
 import { useSortEntradas } from "../contexts/AuxiliarSortEntradas";
 import { addAccionUsuario } from "../services/AccionesUsuarioServices";
 import CustomRadioButton from "../components/CustomRadioButtonsSearch";
@@ -156,8 +156,7 @@ export default function EntradasView() {
     useState("");
   const [cantidadAuxModificarDetails, setCantidadAuxModificarDetails] =
     useState("");
-  const [costoAuxModificarDetails, setCostoAuxModificarDetails] =
-    useState("");
+  const [costoAuxModificarDetails, setCostoAuxModificarDetails] = useState("");
 
   const [isModalMensajeView, setModalMensajeView] = React.useState(false);
   const [modalMensaje, setModalMensaje] = React.useState("");
@@ -182,57 +181,66 @@ export default function EntradasView() {
   const [isPermisoModificarEntrada, setIsPermisoModificarEntrada] =
     React.useState(false);
 
-    const checkPermiso = async () => {
-      if (usuario?.token) {
-        // Verificar y almacenar el permiso de agregar entrada
-        if (localStorage.getItem("isPermisoAgregarEntrada") === null) {
-          const resultAgregarEntrada = await isPermiso(
-            usuario.token,
-            "10",
-            usuario.id_usuario
-          );
-          setIsPermisoAgregarEntrada(resultAgregarEntrada);
-          localStorage.setItem("isPermisoAgregarEntrada", resultAgregarEntrada);
-        } else {
-          setIsPermisoAgregarEntrada(Boolean(localStorage.getItem("isPermisoAgregarEntrada")));
-        }
-    
-        // Verificar y almacenar el permiso de eliminar entrada
-        if (localStorage.getItem("isPermisoEliminarEntrada") === null) {
-          const resultEliminarEntrada = await isPermiso(
-            usuario.token,
-            "12",
-            usuario.id_usuario
-          );
-          setIsPermisoEliminarEntrada(resultEliminarEntrada);
-          localStorage.setItem("isPermisoEliminarEntrada", resultEliminarEntrada);
-        } else {
-          setIsPermisoEliminarEntrada(Boolean(localStorage.getItem("isPermisoEliminarEntrada")));
-        }
-    
-        // Verificar y almacenar el permiso de modificar entrada
-        if (localStorage.getItem("isPermisoModificarEntrada") === null) {
-          const resultModificarEntrada = await isPermiso(
-            usuario.token,
-            "11",
-            usuario.id_usuario
-          );
-          setIsPermisoModificarEntrada(resultModificarEntrada);
-          localStorage.setItem("isPermisoModificarEntrada", resultModificarEntrada);
-        } else {
-          setIsPermisoModificarEntrada(Boolean(localStorage.getItem("isPermisoModificarEntrada")));
-        }
-    
-        // Cargar cambio de moneda
-        if (localStorage.getItem("cambioMoneda") === null) {
-          const cambioMoneda = await getValorMonedaUSD(usuario.token);
-          setCambioMoneda(cambioMoneda);
-          localStorage.setItem("cambioMoneda", cambioMoneda.toString());
-        } else {
-          setCambioMoneda(parseFloat(localStorage.getItem("cambioMoneda")));
-        }
+  const checkPermiso = async () => {
+    if (usuario?.token) {
+      // Verificar y almacenar el permiso de agregar entrada
+      if (localStorage.getItem("isPermisoAgregarEntrada") === null) {
+        const resultAgregarEntrada = await isPermiso(
+          usuario.token,
+          "10",
+          usuario.id_usuario
+        );
+        setIsPermisoAgregarEntrada(resultAgregarEntrada);
+        localStorage.setItem("isPermisoAgregarEntrada", resultAgregarEntrada);
+      } else {
+        setIsPermisoAgregarEntrada(
+          Boolean(localStorage.getItem("isPermisoAgregarEntrada"))
+        );
       }
-    };
+
+      // Verificar y almacenar el permiso de eliminar entrada
+      if (localStorage.getItem("isPermisoEliminarEntrada") === null) {
+        const resultEliminarEntrada = await isPermiso(
+          usuario.token,
+          "12",
+          usuario.id_usuario
+        );
+        setIsPermisoEliminarEntrada(resultEliminarEntrada);
+        localStorage.setItem("isPermisoEliminarEntrada", resultEliminarEntrada);
+      } else {
+        setIsPermisoEliminarEntrada(
+          Boolean(localStorage.getItem("isPermisoEliminarEntrada"))
+        );
+      }
+
+      // Verificar y almacenar el permiso de modificar entrada
+      if (localStorage.getItem("isPermisoModificarEntrada") === null) {
+        const resultModificarEntrada = await isPermiso(
+          usuario.token,
+          "11",
+          usuario.id_usuario
+        );
+        setIsPermisoModificarEntrada(resultModificarEntrada);
+        localStorage.setItem(
+          "isPermisoModificarEntrada",
+          resultModificarEntrada
+        );
+      } else {
+        setIsPermisoModificarEntrada(
+          Boolean(localStorage.getItem("isPermisoModificarEntrada"))
+        );
+      }
+
+      // Cargar cambio de moneda
+      if (localStorage.getItem("cambioMoneda") === null) {
+        const cambioMoneda = await getValorMonedaUSD(usuario.token);
+        setCambioMoneda(cambioMoneda);
+        localStorage.setItem("cambioMoneda", cambioMoneda.toString());
+      } else {
+        setCambioMoneda(parseFloat(localStorage.getItem("cambioMoneda")));
+      }
+    }
+  };
 
   const onDrop = (event: PanGestureHandlerGestureEvent) => {
     // Aquí puedes agregar la lógica para procesar los archivos
@@ -336,9 +344,15 @@ export default function EntradasView() {
   const [costoHastaSearch, setCostohastaSearch] = useState("");
   const [fechaDesdeSearch, setFechaDesdeSearch] = useState(new Date());
   const [fechaHastaSearch, setFechaHastaSearch] = useState(new Date());
-  const [fechaDiaDesdeSearch, setFechaDiaDesdeSearch] = useState("1");
-  const [fechaMesDesdeSearch, setFechaMesdesdeSearch] = useState("1");
-  const [fechaAnnoDesdeSearch, setFechaAnnoDesdeSearch] = useState("2024");
+  const [fechaDiaDesdeSearch, setFechaDiaDesdeSearch] = useState(
+    String(parseInt(day))
+  );
+  const [fechaMesDesdeSearch, setFechaMesdesdeSearch] = useState(
+    String(parseInt(month))
+  );
+  const [fechaAnnoDesdeSearch, setFechaAnnoDesdeSearch] = useState(
+    String(parseInt(year))
+  );
 
   const [fechaDiaHastaSearch, setFechaDiaHastaSearch] = useState(
     String(parseInt(day))
@@ -495,15 +509,16 @@ export default function EntradasView() {
         setCantidadDetails(result.cantidad);
         setIdTiendaDetails(result.tienda.id_tienda);
         setCostoUSDDetails(result.costo);
-        setCostoCUPDetails(String((result.costo * cambioMoneda).toFixed(2)))
-        
+        setCostoCUPDetails(String((result.costo * cambioMoneda).toFixed(2)));
+
         // Actualizamos las fechas (nuevos datos)
         setFechaDiaDetails(String(parseInt(day)));
         setFechaMesDetails(String(parseInt(month)));
         setFechaAnnoDetails(String(parseInt(year)));
 
         if (result.fecha_vencimiento) {
-          const [yearVencimiento, monthVencimiento, dayVencimiento] = result.fecha_vencimiento.split("T")[0].split("-");
+          const [yearVencimiento, monthVencimiento, dayVencimiento] =
+            result.fecha_vencimiento.split("T")[0].split("-");
           setFechaVencimientoDiaDetails(String(parseInt(dayVencimiento)));
           setFechaVencimientoMesDetails(String(parseInt(monthVencimiento)));
           setFechaVencimientoAnnoDetails(String(parseInt(yearVencimiento)));
@@ -680,12 +695,12 @@ export default function EntradasView() {
         if (result) {
           if (modalEntradasDates?.id_entrada === "") {
             const currentDate = new Date();
-  
+
             // Extraemos el año, mes y día de la fecha actual
             const year = String(currentDate.getFullYear());
             const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
             const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
-  
+
             setFechaVencimientoDiaDetails(String(parseInt(day)));
             setFechaVencimientoMesDetails(String(parseInt(month)));
             setFechaVencimientoAnnoDetails(String(parseInt(year)));
@@ -761,14 +776,25 @@ export default function EntradasView() {
     setSelectedOptionTipoOrden("");
   };
   // Retorna el Promedio ponderado
-  const calcularCPP = (cant_existencia: number, CPP_anterior: number, cant_i: number, costoUnidad_i: number) =>{
-    const cpp = ((cant_existencia * CPP_anterior)+(cant_i * costoUnidad_i))/(cant_existencia + cant_i);
+  const calcularCPP = (
+    cant_existencia: number,
+    CPP_anterior: number,
+    cant_i: number,
+    costoUnidad_i: number
+  ) => {
+    const cpp =
+      (cant_existencia * CPP_anterior + cant_i * costoUnidad_i) /
+      (cant_existencia + cant_i);
     return cpp.toFixed(5);
-  }
-  const calcularCPPAjustado = (cant_existencia: number, CPP_anterior: number, diferencia: number) =>{
-    const cpp = ((cant_existencia * CPP_anterior) + diferencia) / cant_existencia
+  };
+  const calcularCPPAjustado = (
+    cant_existencia: number,
+    CPP_anterior: number,
+    diferencia: number
+  ) => {
+    const cpp = (cant_existencia * CPP_anterior + diferencia) / cant_existencia;
     return cpp.toFixed(5);
-  }
+  };
 
   // Método para agregar un nuevo producto al sistema
   const addNewEntrada = async () => {
@@ -812,30 +838,47 @@ export default function EntradasView() {
           costoUSDDetails,
           cantidadDetails,
           `${fechaMesDetails}-${fechaDiaDetails}-${fechaAnnoDetails}`,
-          isFechaVencimientoDetails? `${fechaVencimientoMesDetails}-${fechaVencimientoDiaDetails}-${fechaVencimientoAnnoDetails}` : null,
+          isFechaVencimientoDetails
+            ? `${fechaVencimientoMesDetails}-${fechaVencimientoDiaDetails}-${fechaVencimientoAnnoDetails}`
+            : null,
           parseInt(idProveedorDetails),
           parseInt(idProductoDetails),
           parseInt(idTiendaDetails),
           parseFloat(costoCUPDetails)
         );
 
-        setModalMensaje("Actualizando costo promedio ponderado del producto")
+        setModalMensaje("Actualizando costo promedio ponderado del producto");
         // Actualizar costo promedio ponderado CPP
         // Obtener datos necezarios
-        const productoData = await getProductoById(usuario.token, idProductoDetails);
-        const cantidadExistencia = await getProductoCantidadTotal(usuario.token, idProductoDetails);
-        const cpp = calcularCPP(cantidadExistencia, productoData.costo_acumulado, parseInt(cantidadDetails), parseFloat(costoUSDDetails)/parseInt(cantidadDetails))
-        await updateProductoCostoAcumulado(usuario.token, idProductoDetails, cpp);
+        const productoData = await getProductoById(
+          usuario.token,
+          idProductoDetails
+        );
+        const cantidadExistencia = await getProductoCantidadTotal(
+          usuario.token,
+          idProductoDetails
+        );
+        const cpp = calcularCPP(
+          cantidadExistencia,
+          productoData.costo_acumulado,
+          parseInt(cantidadDetails),
+          parseFloat(costoUSDDetails) / parseInt(cantidadDetails)
+        );
+        await updateProductoCostoAcumulado(
+          usuario.token,
+          idProductoDetails,
+          cpp
+        );
 
-        setModalMensaje("Actualizando cantidad en tienda")
+        setModalMensaje("Actualizando cantidad en tienda");
         await addProductoEntrada(
           usuario.token,
           parseInt(idTiendaDetails),
           parseInt(idProductoDetails),
           parseInt(cantidadDetails)
         );
-        
-        setModalMensaje("Agregando acción")
+
+        setModalMensaje("Agregando acción");
         // Agregar Acción de usuario agregar proveedor
         const nombreTienda = dropdownItemsNombreTienda.find((element) => {
           return element.value === idTiendaDetails;
@@ -957,21 +1000,55 @@ export default function EntradasView() {
           costoUSDDetails,
           cantidadDetails,
           `${fechaMesDetails}-${fechaDiaDetails}-${fechaAnnoDetails}`,
-          isFechaVencimientoDetails? `${fechaVencimientoMesDetails}-${fechaVencimientoDiaDetails}-${fechaVencimientoAnnoDetails}` : null,
+          isFechaVencimientoDetails
+            ? `${fechaVencimientoMesDetails}-${fechaVencimientoDiaDetails}-${fechaVencimientoAnnoDetails}`
+            : null,
           parseInt(idProveedorDetails),
           parseInt(idProductoDetails),
           parseInt(idTiendaDetails),
           parseFloat(costoCUPDetails)
         );
 
-        setModalMensaje("Actualizando costo promedio ponderado del producto")
-        // Actualizar costo promedio ponderado CPP
-        // Obtener datos necezarios
-        const productoData = await getProductoById(usuario.token, idProductoDetails);
-        const cantidadExistencia = await getProductoCantidadTotal(usuario.token, idProductoDetails);
-        const auxDiferencia = (parseFloat(cantidadDetails) * parseFloat(costoUSDDetails)) - (parseFloat(cantidadAuxModificarDetails) * parseFloat(costoAuxModificarDetails))
-        const cpp = calcularCPPAjustado(cantidadExistencia, productoData.costo_acumulado, auxDiferencia);
-        await updateProductoCostoAcumulado(usuario.token, idProductoDetails, cpp);
+        setModalMensaje("Actualizando costo promedio ponderado del producto");
+
+        // Obtener datos necesarios
+        const productoData = await getProductoById(
+          usuario.token,
+          idProductoDetails
+        );
+
+        const cantidadExistencia = await getProductoCantidadTotal(
+          usuario.token,
+          idProductoDetails
+        );
+
+        // Verificar valores de costo unitario
+        const costoUnitarioNuevo =
+          parseFloat(costoUSDDetails) / parseInt(cantidadDetails);
+        const costoUnitarioOriginal =
+          parseFloat(costoAuxModificarDetails) /
+          parseInt(cantidadAuxModificarDetails);
+
+        // Calcular la diferencia en el costo total
+        const diferenciaCostoTotal =
+          (costoUnitarioNuevo - costoUnitarioOriginal) *
+          parseFloat(cantidadAuxModificarDetails);
+
+        // Ajustar el costo acumulado
+        const costoAcumuladoActual =
+          cantidadExistencia * productoData.costo_acumulado;
+
+        const nuevoCostoAcumulado = costoAcumuladoActual + diferenciaCostoTotal;
+
+        // Calcular el nuevo CPP
+        const nuevoCPP = nuevoCostoAcumulado / cantidadExistencia;
+
+        // Actualizar el CPP en la base de datos
+        await updateProductoCostoAcumulado(
+          usuario.token,
+          idProductoDetails,
+          nuevoCPP.toFixed(5)
+        );
 
         if (
           idTiendaAuxModificarDetails !== idTiendaDetails ||
@@ -1700,7 +1777,9 @@ export default function EntradasView() {
                       marginRight: "2%",
                     }}
                   >
-                    <Text style={styles.labelTextModalMovil}>Costo total de la entrada en USD</Text>
+                    <Text style={styles.labelTextModalMovil}>
+                      Costo total de la entrada en USD
+                    </Text>
                     <CustomTextImputSearch
                       style={styles.textImputModal}
                       value={costoUSDDetails}
@@ -1712,9 +1791,10 @@ export default function EntradasView() {
                           numericValue.split(".").length > 2
                             ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
                             : numericValue;
-                    
+
                         setCostoUSDDetails(validNumericValue);
-                        const costoCUP = parseFloat(validNumericValue) * cambioMoneda;
+                        const costoCUP =
+                          parseFloat(validNumericValue) * cambioMoneda;
                         setCostoCUPDetails(costoCUP.toFixed(2));
                       }}
                       cursorColor={Colors.azul_Oscuro}
@@ -1735,8 +1815,21 @@ export default function EntradasView() {
                   }}
                 >
                   <View style={{ width: "45%", marginLeft: "2%" }}>
-                    <Text style={styles.labelTextModalDesktop}>Costo de cada unidad</Text>
-                    <Text style={styles.labelTextModalDesktop}>USD: {(parseFloat(costoUSDDetails)/parseInt(cantidadDetails)).toFixed(5)}   CUP: {((parseFloat(costoUSDDetails)/parseInt(cantidadDetails)) * cambioMoneda).toFixed(2)}</Text>
+                    <Text style={styles.labelTextModalDesktop}>
+                      Costo de cada unidad
+                    </Text>
+                    <Text style={styles.labelTextModalDesktop}>
+                      USD:{" "}
+                      {(
+                        parseFloat(costoUSDDetails) / parseInt(cantidadDetails)
+                      ).toFixed(5)}{" "}
+                      CUP:{" "}
+                      {(
+                        (parseFloat(costoUSDDetails) /
+                          parseInt(cantidadDetails)) *
+                        cambioMoneda
+                      ).toFixed(2)}
+                    </Text>
                   </View>
 
                   {/* Campo Costo */}
@@ -1747,7 +1840,9 @@ export default function EntradasView() {
                       marginRight: "2%",
                     }}
                   >
-                    <Text style={styles.labelTextModalMovil}>Costo total de la entrada en CUP</Text>
+                    <Text style={styles.labelTextModalMovil}>
+                      Costo total de la entrada en CUP
+                    </Text>
                     <CustomTextImputSearch
                       style={styles.textImputModal}
                       value={costoCUPDetails}
@@ -1759,9 +1854,10 @@ export default function EntradasView() {
                           numericValue.split(".").length > 2
                             ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
                             : numericValue;
-                    
+
                         setCostoCUPDetails(validNumericValue);
-                        const costoUSD = parseFloat(validNumericValue) / cambioMoneda;
+                        const costoUSD =
+                          parseFloat(validNumericValue) / cambioMoneda;
                         setCostoUSDDetails(costoUSD.toFixed(5));
                       }}
                       cursorColor={Colors.azul_Oscuro}
@@ -1791,29 +1887,31 @@ export default function EntradasView() {
 
                 {/* Campo fecha vencimiento */}
                 {isFechaVencimientoDetails && (
-                    <View
-                      style={{
-                        width: "90%", marginLeft: "2%", marginRight: "2%" 
-                      }}
-                    >
-                      <Text style={styles.labelTextModalDesktop}>
-                        Fecha vencimiento
-                      </Text>
-                      {isDateLoaded && (
-                        <MyDateInputVencimiento
-                          dayValue={fechaVencimientoDiaDetails}
-                          monthValue={fechaVencimientoMesDetails}
-                          yearValue={fechaVencimientoAnnoDetails}
-                          onDayChange={setFechaVencimientoDiaDetails}
-                          onMonthChange={setFechaVencimientoMesDetails}
-                          onYearChange={setFechaVencimientoAnnoDetails}
-                          style={{ margin: 20 }}
-                          styleText={styles.labelTextModalDesktop}
-                          onDropdownOpen={() => controlarCapas("FechaDetails")}
-                        />
-                      )}
-                    </View>
-                  )}
+                  <View
+                    style={{
+                      width: "90%",
+                      marginLeft: "2%",
+                      marginRight: "2%",
+                    }}
+                  >
+                    <Text style={styles.labelTextModalDesktop}>
+                      Fecha vencimiento
+                    </Text>
+                    {isDateLoaded && (
+                      <MyDateInputVencimiento
+                        dayValue={fechaVencimientoDiaDetails}
+                        monthValue={fechaVencimientoMesDetails}
+                        yearValue={fechaVencimientoAnnoDetails}
+                        onDayChange={setFechaVencimientoDiaDetails}
+                        onMonthChange={setFechaVencimientoMesDetails}
+                        onYearChange={setFechaVencimientoAnnoDetails}
+                        style={{ margin: 20 }}
+                        styleText={styles.labelTextModalDesktop}
+                        onDropdownOpen={() => controlarCapas("FechaDetails")}
+                      />
+                    )}
+                  </View>
+                )}
 
                 {/*btones para agregar, modificar o elminiar según corresponda */}
                 <View
@@ -1896,46 +1994,46 @@ export default function EntradasView() {
 
                   {/* Botón para eliminar proveedor */}
                   {false && (
-                      <TouchableOpacity
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: Colors.rojo_oscuro,
+                        borderRadius: 15,
+                        width: "40%", // Ancho fijo para pantallas de escritorio
+                        height: 50, // Altura fija para pantallas de escritorio
+                        alignItems: "center",
+                        justifyContent: "center",
+                        shadowColor: "#000",
+                        marginRight: "5%",
+                        shadowOffset: { width: 3, height: 4 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 5,
+                        marginTop: "3%", // Margen adicional entre botones
+                      }}
+                      onPress={() => {
+                        setIsModalChekVisible(true);
+                        setIsModalChekEliminarEntrada(true);
+                        setMesajeModalChek(
+                          `¿Estás seguro que deseas ELIMINAR al esta entrada?`
+                        );
+                        setModalEntradasDates({
+                          id_entrada: "",
+                          isAddEntrada: false,
+                          isModificarEntrada: false,
+                          fileEditable: true,
+                        });
+                      }}
+                      disabled={isButtonDisabled}
+                    >
+                      <Text
                         style={{
-                          backgroundColor: Colors.rojo_oscuro,
-                          borderRadius: 15,
-                          width: "40%", // Ancho fijo para pantallas de escritorio
-                          height: 50, // Altura fija para pantallas de escritorio
-                          alignItems: "center",
-                          justifyContent: "center",
-                          shadowColor: "#000",
-                          marginRight: "5%",
-                          shadowOffset: { width: 3, height: 4 },
-                          shadowOpacity: 0.3,
-                          shadowRadius: 5,
-                          marginTop: "3%", // Margen adicional entre botones
+                          color: "white",
+                          fontSize: 16,
                         }}
-                        onPress={() => {
-                          setIsModalChekVisible(true);
-                          setIsModalChekEliminarEntrada(true);
-                          setMesajeModalChek(
-                            `¿Estás seguro que deseas ELIMINAR al esta entrada?`
-                          );
-                          setModalEntradasDates({
-                            id_entrada: "",
-                            isAddEntrada: false,
-                            isModificarEntrada: false,
-                            fileEditable: true,
-                          });
-                        }}
-                        disabled={isButtonDisabled}
                       >
-                        <Text
-                          style={{
-                            color: "white",
-                            fontSize: 16,
-                          }}
-                        >
-                          Eliminar Entrada
-                        </Text>
-                      </TouchableOpacity>
-                    )}
+                        Eliminar Entrada
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </ScrollView>
             </View>
@@ -2583,7 +2681,7 @@ export default function EntradasView() {
                     }}
                   >
                     <Text style={styles.labelTextModalDesktop}>
-                      Costo total de la entrada en USD 
+                      Costo total de la entrada en USD
                     </Text>
                     <CustomTextImputSearch
                       style={styles.textImputModal}
@@ -2596,9 +2694,10 @@ export default function EntradasView() {
                           numericValue.split(".").length > 2
                             ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
                             : numericValue;
-                    
+
                         setCostoUSDDetails(validNumericValue);
-                        const costoCUP = parseFloat(validNumericValue) * cambioMoneda;
+                        const costoCUP =
+                          parseFloat(validNumericValue) * cambioMoneda;
                         setCostoCUPDetails(costoCUP.toFixed(2));
                       }}
                       cursorColor={Colors.azul_Oscuro}
@@ -2620,8 +2719,21 @@ export default function EntradasView() {
                 >
                   {/* Campo texto costo por unidad */}
                   <View style={{ width: "45%", marginLeft: "2%" }}>
-                    <Text style={styles.labelTextModalDesktop}>Costo de cada unidad</Text>
-                    <Text style={styles.labelTextModalDesktop}>USD: {(parseFloat(costoUSDDetails)/parseInt(cantidadDetails)).toFixed(5)}   CUP: {((parseFloat(costoUSDDetails)/parseInt(cantidadDetails)) * cambioMoneda).toFixed(5)}</Text>
+                    <Text style={styles.labelTextModalDesktop}>
+                      Costo de cada unidad
+                    </Text>
+                    <Text style={styles.labelTextModalDesktop}>
+                      USD:{" "}
+                      {(
+                        parseFloat(costoUSDDetails) / parseInt(cantidadDetails)
+                      ).toFixed(5)}{" "}
+                      CUP:{" "}
+                      {(
+                        (parseFloat(costoUSDDetails) /
+                          parseInt(cantidadDetails)) *
+                        cambioMoneda
+                      ).toFixed(5)}
+                    </Text>
                   </View>
 
                   {/* Campo Costo */}
@@ -2633,7 +2745,7 @@ export default function EntradasView() {
                     }}
                   >
                     <Text style={styles.labelTextModalDesktop}>
-                      Costo total de la entrada en CUP 
+                      Costo total de la entrada en CUP
                     </Text>
                     <CustomTextImputSearch
                       style={styles.textImputModal}
@@ -2646,9 +2758,10 @@ export default function EntradasView() {
                           numericValue.split(".").length > 2
                             ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
                             : numericValue;
-                    
+
                         setCostoCUPDetails(validNumericValue);
-                        const costoUSD = parseFloat(validNumericValue) / cambioMoneda;
+                        const costoUSD =
+                          parseFloat(validNumericValue) / cambioMoneda;
                         setCostoUSDDetails(costoUSD.toFixed(5));
                       }}
                       cursorColor={Colors.azul_Oscuro}
@@ -2799,46 +2912,46 @@ export default function EntradasView() {
                     )}
                   {/* Botón para eliminar proveedor */}
                   {false && (
-                      <TouchableOpacity
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: Colors.rojo_oscuro,
+                        borderRadius: 15,
+                        width: "30%", // Ancho fijo para pantallas de escritorio
+                        height: 50, // Altura fija para pantallas de escritorio
+                        alignItems: "center",
+                        justifyContent: "center",
+                        shadowColor: "#000",
+                        marginRight: "5%",
+                        shadowOffset: { width: 3, height: 4 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 5,
+                        marginTop: "3%", // Margen adicional entre botones
+                      }}
+                      onPress={() => {
+                        setIsModalChekVisible(true);
+                        setIsModalChekEliminarEntrada(true);
+                        setMesajeModalChek(
+                          `¿Estás seguro que deseas ELIMINAR al esta entrada?`
+                        );
+                        setModalEntradasDates({
+                          id_entrada: "",
+                          isAddEntrada: false,
+                          isModificarEntrada: false,
+                          fileEditable: true,
+                        });
+                      }}
+                      disabled={isButtonDisabled}
+                    >
+                      <Text
                         style={{
-                          backgroundColor: Colors.rojo_oscuro,
-                          borderRadius: 15,
-                          width: "30%", // Ancho fijo para pantallas de escritorio
-                          height: 50, // Altura fija para pantallas de escritorio
-                          alignItems: "center",
-                          justifyContent: "center",
-                          shadowColor: "#000",
-                          marginRight: "5%",
-                          shadowOffset: { width: 3, height: 4 },
-                          shadowOpacity: 0.3,
-                          shadowRadius: 5,
-                          marginTop: "3%", // Margen adicional entre botones
+                          color: "white",
+                          fontSize: 16,
                         }}
-                        onPress={() => {
-                          setIsModalChekVisible(true);
-                          setIsModalChekEliminarEntrada(true);
-                          setMesajeModalChek(
-                            `¿Estás seguro que deseas ELIMINAR al esta entrada?`
-                          );
-                          setModalEntradasDates({
-                            id_entrada: "",
-                            isAddEntrada: false,
-                            isModificarEntrada: false,
-                            fileEditable: true,
-                          });
-                        }}
-                        disabled={isButtonDisabled}
                       >
-                        <Text
-                          style={{
-                            color: "white",
-                            fontSize: 16,
-                          }}
-                        >
-                          Eliminar Entrada
-                        </Text>
-                      </TouchableOpacity>
-                    )}
+                        Eliminar Entrada
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </ScrollView>
             </View>
