@@ -247,4 +247,26 @@ export class EntradaService extends BaseService<Entrada> {
       .where("p.id_producto=:id_producto", { id_producto })
       .getMany();
   }
+
+  async getEntradasPorVencimiento(fecha: string) {
+    const fechaVencimientoMaxima = new Date(fecha);
+    const fechaActual = new Date();
+  
+    let entradas: Entrada[] = [];
+  
+    entradas = await (await this.execRepository)
+      .createQueryBuilder("e")
+      .leftJoinAndSelect("e.proveedor", "p")
+      .leftJoinAndSelect("e.producto", "prod")
+      .leftJoinAndSelect("e.tienda", "t") // Agregamos la relación con la tienda
+      .where("e.fecha_vencimiento IS NOT NULL")
+      .getMany();
+  
+    entradas = entradas.filter((entrada: Entrada) => {
+      const fechaVencimiento = new Date(entrada.fecha_vencimiento);
+      return fechaVencimiento >= fechaActual && fechaVencimiento <= fechaVencimientoMaxima;
+    });
+  
+    return entradas;
+  }
 }

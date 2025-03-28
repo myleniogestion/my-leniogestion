@@ -89,5 +89,11 @@ export class EntradaRouter extends BaseRouter<EntradaController> {
       (req: Request, res: Response) =>
         this.controller.EntradasbyProducto(req, res)
     );
+
+    this.router.get(
+      "/Entrada/vencimiento/:fecha",
+      [verifyToken],
+      (req: Request, res: Response) => this.controller.getEntradasPorVencimiento(req, res)
+    );
   }
 }

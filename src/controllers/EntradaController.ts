@@ -170,4 +170,13 @@ export class EntradaController {
       res.status(500).json({ error: error.message });
     }
   }
+  async getEntradasPorVencimiento(req: Request, res: Response) {
+    const { fecha } = req.params;
+    try {
+      const data = await this.entradaService.getEntradasPorVencimiento(fecha);
+      data ? res.status(200).json(data) : res.status(404).json("No encontrado");
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
