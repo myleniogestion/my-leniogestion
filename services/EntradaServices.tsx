@@ -266,3 +266,24 @@ export const ordenarEntradas = async (
     return false;
   }
 };
+
+// Obtener entradas proxims a vencimiento
+export const getEntradasPorVencer = async (token: String, fechaLimVencimiento: string) => {
+  try {
+    const response = await axios.get(`${cerverHost}/Entrada/vencimiento/${fechaLimVencimiento}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      navigate("Login");
+    }
+    console.log(
+      "Error al obtener datos de las entradas que estan proximas a vencer ",
+      error
+    );
+    return false;
+  }
+};

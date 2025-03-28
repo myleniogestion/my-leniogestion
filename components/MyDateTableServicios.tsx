@@ -186,10 +186,10 @@ export const MyDateTableServicios: React.FC<Props> = ({
     let sumaMayoristaUSD = 0;
     let sumaTransferencias = 0;
     console.log(items);
-    
+
     items.forEach((item) => {
       if (!item.devuelto) {
-        sumaTransferencias += parseFloat(item.cantidad_transferida)
+        sumaTransferencias += parseFloat(item.cantidad_transferida);
         if (parseInt(item.id_Tipo_servicio) === 25) {
           sumaMayoristaUSD +=
             parseFloat(item.precio) *
@@ -208,12 +208,10 @@ export const MyDateTableServicios: React.FC<Props> = ({
 
     mensaje += `USD: ${sumaMinoristaUSD.toFixed(5)}  CUP: ${(
       sumaMinoristaUSD * cambioMoneda
-    ).toFixed(
-      0
-    )}      Importes mayoristas filtrados:  CUP: ${(
+    ).toFixed(0)}      Importes mayoristas filtrados:  CUP: ${(
       sumaMayoristaUSD * cambioMoneda
     ).toFixed(0)} `;
-    mensaje += `      Transferencis CUP: ${sumaTransferencias}`
+    mensaje += `      Transferencias CUP: ${sumaTransferencias}`;
     return String(mensaje);
   };
   const mensajeOfEndTableGanancia = () => {
@@ -221,14 +219,16 @@ export const MyDateTableServicios: React.FC<Props> = ({
     let sumaGanancia = 0;
 
     items.forEach((item) => {
-      
       if (
         parseInt(item.id_Tipo_servicio) === 2 ||
         parseInt(item.id_Tipo_servicio) === 25
       ) {
-
-        sumaGanancia += (parseFloat(item.precio) - parseFloat(item.costo) + parseFloat(item.costo_tipo_servicio)) * ((item.cantidad ? parseInt(item.cantidad ?? "0") : 0));
-      } else{
+        sumaGanancia +=
+          (parseFloat(item.precio) -
+            parseFloat(item.costo) +
+            parseFloat(item.costo_tipo_servicio)) *
+          (item.cantidad ? parseInt(item.cantidad ?? "0") : 0);
+      } else {
         sumaGanancia +=
           parseFloat(item.precio) -
           parseFloat(item.costo) +
@@ -409,7 +409,10 @@ export const MyDateTableServicios: React.FC<Props> = ({
                 onPress={() => detailsModalView(item.id_Servicio)}
                 style={[
                   { justifyContent: "space-around" }, // Estilo base
-                  item.id_Deuda === null && { borderWidth: 2, borderColor: "red" }, // Estilo condicional
+                  item.id_Deuda === null && {
+                    borderWidth: 2,
+                    borderColor: "red",
+                  }, // Estilo condicional
                 ]}
               >
                 {/* Primera celda - Nombre Cliente*/}
@@ -461,40 +464,6 @@ export const MyDateTableServicios: React.FC<Props> = ({
                   {item.nombreTipoServicio}
                 </DataTable.Cell>
 
-                {/* Cuarta celda - Precio */}
-                <DataTable.Cell
-                  numeric
-                  style={[
-                    styles.handerRow,
-                    { justifyContent: "center", alignItems: "center" },
-                  ]} // Centrar el texto
-                >
-                  <Text
-                    style={{
-                      color: item.devuelto ? Colors.gris_claro : Colors.negro,
-                    }}
-                  >
-                    {parseFloat(item.precio).toFixed(5)}
-                  </Text>
-                </DataTable.Cell>
-
-                {/* Cuarta celda - Precio CUP */}
-                <DataTable.Cell
-                  numeric
-                  style={[
-                    styles.handerRow,
-                    { justifyContent: "center", alignItems: "center" },
-                  ]} // Centrar el texto
-                >
-                  <Text
-                    style={{
-                      color: item.devuelto ? Colors.gris_claro : Colors.negro,
-                    }}
-                  >
-                    {(parseFloat(item.precio) * cambioMoneda).toFixed(0)}
-                  </Text>
-                </DataTable.Cell>
-
                 {/* Cuarta celda - Precio Producto */}
                 <DataTable.Cell
                   numeric
@@ -515,6 +484,40 @@ export const MyDateTableServicios: React.FC<Props> = ({
                   ]} // Centrar el texto
                 >
                   <Text>{item.cantidad ? item.cantidad : ""}</Text>
+                </DataTable.Cell>
+
+                {/* Cuarta celda - Precio CUP */}
+                <DataTable.Cell
+                  numeric
+                  style={[
+                    styles.handerRow,
+                    { justifyContent: "center", alignItems: "center" },
+                  ]} // Centrar el texto
+                >
+                  <Text
+                    style={{
+                      color: item.devuelto ? Colors.gris_claro : Colors.negro,
+                    }}
+                  >
+                    {(item.cantidad)? ((parseFloat(item.precio) / parseInt(item.cantidad)) * cambioMoneda).toFixed(0) : ""}
+                  </Text>
+                </DataTable.Cell>
+
+                {/* Cuarta celda - Precio CUP */}
+                <DataTable.Cell
+                  numeric
+                  style={[
+                    styles.handerRow,
+                    { justifyContent: "center", alignItems: "center" },
+                  ]} // Centrar el texto
+                >
+                  <Text
+                    style={{
+                      color: item.devuelto ? Colors.gris_claro : Colors.negro,
+                    }}
+                  >
+                    {(parseFloat(item.precio) * cambioMoneda).toFixed(0)}
+                  </Text>
                 </DataTable.Cell>
 
                 {/* Quinta celda - Fecha */}
@@ -986,16 +989,19 @@ export const MyDateTableServicios: React.FC<Props> = ({
               <Text>{mensajeOfEndTable()}</Text>
             </View>
 
-            {(parseInt(usuario?.id_rol) === 1 || parseInt(usuario?.id_rol) === 2) && (<View
-            style={{
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "row",
-            }}
-          >
-            <Text>{mensajeOfEndTableGanancia()}</Text>
-          </View>)}
+            {(parseInt(usuario?.id_rol) === 1 ||
+              parseInt(usuario?.id_rol) === 2) && (
+              <View
+                style={{
+                  width: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "row",
+                }}
+              >
+                <Text>{mensajeOfEndTableGanancia()}</Text>
+              </View>
+            )}
 
             <View style={styles.paginationContainer}>
               <TouchableOpacity
@@ -1083,40 +1089,6 @@ export const MyDateTableServicios: React.FC<Props> = ({
                   {item.nombreTipoServicio}
                 </DataTable.Cell>
 
-                {/* Cuarta celda - Precio USD */}
-                <DataTable.Cell
-                  numeric
-                  style={[
-                    styles.handerRow,
-                    { justifyContent: "center", alignItems: "center" }, // Centrar contenido
-                  ]}
-                >
-                  <Text
-                    style={{
-                      color: item.devuelto ? Colors.gris_claro : Colors.negro,
-                    }}
-                  >
-                    {parseFloat(item.precio).toFixed(5)}
-                  </Text>
-                </DataTable.Cell>
-
-                {/* Cuarta celda - Precio CUP */}
-                <DataTable.Cell
-                  numeric
-                  style={[
-                    styles.handerRow,
-                    { justifyContent: "center", alignItems: "center" },
-                  ]} // Centrar el texto
-                >
-                  <Text
-                    style={{
-                      color: item.devuelto ? Colors.gris_claro : Colors.negro,
-                    }}
-                  >
-                    {(parseFloat(item.precio) * cambioMoneda).toFixed(0)}
-                  </Text>
-                </DataTable.Cell>
-
                 {/* Cuarta celda - Precio Producto */}
                 <DataTable.Cell
                   numeric
@@ -1137,6 +1109,40 @@ export const MyDateTableServicios: React.FC<Props> = ({
                   ]} // Centrar el texto
                 >
                   <Text>{item.cantidad ? item.cantidad : ""}</Text>
+                </DataTable.Cell>
+
+                {/* Cuarta celda - Precio CUP */}
+                <DataTable.Cell
+                  numeric
+                  style={[
+                    styles.handerRow,
+                    { justifyContent: "center", alignItems: "center" },
+                  ]} // Centrar el texto
+                >
+                  <Text
+                    style={{
+                      color: item.devuelto ? Colors.gris_claro : Colors.negro,
+                    }}
+                  >
+                    {(item.cantidad)? ((parseFloat(item.precio) / parseInt(item.cantidad)) * cambioMoneda).toFixed(0) : ""}
+                  </Text>
+                </DataTable.Cell>
+
+                {/* Cuarta celda - Precio CUP */}
+                <DataTable.Cell
+                  numeric
+                  style={[
+                    styles.handerRow,
+                    { justifyContent: "center", alignItems: "center" },
+                  ]} // Centrar el texto
+                >
+                  <Text
+                    style={{
+                      color: item.devuelto ? Colors.gris_claro : Colors.negro,
+                    }}
+                  >
+                    {(parseFloat(item.precio) * cambioMoneda).toFixed(0)}
+                  </Text>
                 </DataTable.Cell>
 
                 {/* Quinta celda - Fecha*/}
@@ -1215,16 +1221,19 @@ export const MyDateTableServicios: React.FC<Props> = ({
             <Text>{mensajeOfEndTable()}</Text>
           </View>
 
-          {(parseInt(usuario?.id_rol) === 1 || parseInt(usuario?.id_rol) === 2) && (<View
-            style={{
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "row",
-            }}
-          >
-            <Text>{mensajeOfEndTableGanancia()}</Text>
-          </View>)}
+          {(parseInt(usuario?.id_rol) === 1 ||
+            parseInt(usuario?.id_rol) === 2) && (
+            <View
+              style={{
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "row",
+              }}
+            >
+              <Text>{mensajeOfEndTableGanancia()}</Text>
+            </View>
+          )}
 
           <View style={styles.paginationContainer}>
             <TouchableOpacity

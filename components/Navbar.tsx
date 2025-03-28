@@ -16,7 +16,7 @@ import { styles } from "../styles/Styles";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "../styles/Colors";
 import CustomButtonNavbar from "./CustomButtonLogin";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useUsuario } from "../contexts/UsuarioContext";
 import { isPermiso } from "../services/RolPermisosAndRol";
 import "../styles/ScrollView.css";
@@ -26,6 +26,7 @@ import CustomTextImputSearch from "../components/CustomTextImputSearch";
 import { cambiarContrasennaUsuarios } from "../services/UsuarioServices";
 import { addAccionUsuario } from "../services/AccionesUsuarioServices";
 import { usePermisosUsuario as usePermisosUsuarioNavbar } from "../contexts/PermisosNavbarContext";
+import { getEntradasPorVencer } from "../services/EntradaServices";
 
 const Navbar = () => {
   // Para poder navegar entre vistas
@@ -62,6 +63,10 @@ const Navbar = () => {
   const { setSelectedButon, selectedButon } = useSelectedButon();
 
   const [isModalMensajeView, setModalMensajeView] = React.useState(false);
+  const [notificacionesPendientes, setNotificacionesPendientes] = useState(0);
+  const [entradasProximasVencer, setEntradasProximasVencer] = useState<
+    unknown[]
+  >([]);
   const [modalMensaje, setModalMensaje] = React.useState("");
   const [isReflechModalMensajeView, setReflechModalMensajeView] =
     React.useState(false);
@@ -120,8 +125,12 @@ const Navbar = () => {
             (permisosUsuarioNavbar?.resultEliminarUsuario ?? false)
         );
         setHasPermisoViewTienda(parseInt(usuario.id_usuario) === 1);
-        setHasPermisoViewCliente(permisosUsuarioNavbar?.resultClienteView ?? false);
-        setHasPermisoViewGarantia(permisosUsuarioNavbar?.resultGarantiaView ?? false);
+        setHasPermisoViewCliente(
+          permisosUsuarioNavbar?.resultClienteView ?? false
+        );
+        setHasPermisoViewGarantia(
+          permisosUsuarioNavbar?.resultGarantiaView ?? false
+        );
 
         const newOptions = [];
         if (
@@ -185,6 +194,51 @@ const Navbar = () => {
     ? styles.buttonContainterMovile
     : styles.buttonsContainerDesktop;
 
+  const fechaActual = new Date();
+  const proximoMes = new Date(
+    fechaActual.getFullYear(),
+    fechaActual.getMonth() + 1,
+    fechaActual.getDate()
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchData = async () => {
+        // Código que se ejecutará cuando la pantalla esté enfocada
+  
+        // Llamada a la función asíncrona
+        if (usuario?.token && parseInt(usuario.id_rol) !== 4) {
+          let result
+          if (localStorage.getItem("entradasProximasVencer") === null) {
+              result = await getEntradasPorVencer(
+              usuario.token,
+              proximoMes.toISOString()
+            );
+            setNotificacionesPendientes(result.length);
+            setEntradasProximasVencer(result);
+            localStorage.setItem(
+              "entradasProximasVencer",
+              JSON.stringify(result)
+            );
+          } else {
+            const entradasProximasVencer = JSON.parse(
+              localStorage.getItem("entradasProximasVencer")
+            );
+            setNotificacionesPendientes(entradasProximasVencer.length);
+            setEntradasProximasVencer(entradasProximasVencer);
+          }
+        }
+      };
+  
+      fetchData();
+  
+      // Si necesitas limpiar algo cuando la pantalla pierde el foco, puedes retornar una función de limpieza
+      return () => {
+        console.log("La pantalla de Login perdió el foco");
+      };
+    }, [])
+  );
+
   // Función para cambiar la contraseña
   const changePassword = async () => {
     if (usuario?.token) {
@@ -205,7 +259,7 @@ const Navbar = () => {
       if (contrasennaNueva1.trim() === "" || contrasennaNueva2.trim() === "") {
         flag = false;
         validarCampos +=
-          "-Deve digitar la nueva contraseña en los campos correspondientes.\n";
+          "-Debe digitar la nueva contraseña en los campos correspondientes.\n";
       }
 
       if (flag) {
@@ -338,7 +392,8 @@ const Navbar = () => {
                 navigation.navigate("Garantías");
               }}
             />)*/}
-          {hasPermisoViewCliente && (<CustomButtonNavbar
+          {hasPermisoViewCliente && (
+            <CustomButtonNavbar
               imageSource={require("../images/nueva-cuenta.png")}
               text={"Clientes"}
               isSelected={selectedButon?.butonSelected === "Clientes"}
@@ -348,8 +403,11 @@ const Navbar = () => {
                 });
                 navigation.navigate("Clientes");
               }}
-            />)}
-            {(parseInt(usuario?.id_rol) === 1 || parseInt(usuario?.id_rol) === 2) && (<CustomButtonNavbar
+            />
+          )}
+          {(parseInt(usuario?.id_rol) === 1 ||
+            parseInt(usuario?.id_rol) === 2) && (
+            <CustomButtonNavbar
               imageSource={require("../images/Deudas.png")}
               text={"Deudas"}
               isSelected={selectedButon?.butonSelected === "Deudas"}
@@ -359,7 +417,8 @@ const Navbar = () => {
                 });
                 navigation.navigate("Deudas");
               }}
-            />)}
+            />
+          )}
           {hasPermisoViewProveedor && (
             <CustomButtonNavbar
               imageSource={require("../images/gente.png")}
@@ -433,9 +492,28 @@ const Navbar = () => {
                 marginVertical: 10,
               }}
             >
-              <Text style={{ fontSize: 20, color: Colors.blanco }}>
-                Usuario
-              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={{ fontSize: 20, color: Colors.blanco }}>
+                  Usuario
+                </Text>
+                {notificacionesPendientes > 0 && (
+                  <View
+                    style={{
+                      backgroundColor: Colors.rojo_oscuro,
+                      borderRadius: 10,
+                      width: 20,
+                      height: 20,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginLeft: 5,
+                    }}
+                  >
+                    <Text style={{ fontSize: 12, color: Colors.blanco }}>
+                      {notificacionesPendientes}
+                    </Text>
+                  </View>
+                )}
+              </View>
               <View style={styles.separatorBlanco} />
               <Text style={{ fontSize: 16, color: Colors.blanco }}>
                 Nombre: {usuario?.nombre}
@@ -708,6 +786,164 @@ const Navbar = () => {
                       Cambiar Contraseña
                     </Text>
                   </TouchableOpacity>
+
+                  {notificacionesPendientes > 0 && (
+                    <View
+                      style={{
+                        width: "90%",
+                        height: "50%",
+                        backgroundColor: Colors.blanco_Suave,
+                        borderRadius: 15,
+                        alignItems: "center",
+                        shadowColor: "#000",
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 5,
+                        elevation: 5,
+                        marginLeft: 10,
+                        marginTop: 10,
+                        marginBottom: 10,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          color: Colors.negro,
+                          textShadowColor: "rgba(0, 0, 0, 0.5)",
+                          textShadowOffset: { width: 1, height: 1 },
+                          textShadowRadius: 2,
+                        }}
+                      >
+                        Notificaciones Pendientes
+                      </Text>
+                      <ScrollView
+                        style={{ width: "100%" }}
+                        contentContainerStyle={{
+                          alignItems: "center",
+                          paddingBottom: 20,
+                        }}
+                      >
+                        <View
+                          style={{
+                            marginBottom: 10,
+                            marginLeft: "5%",
+                            marginTop: "2%",
+                            width: "100%",
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              color: Colors.negro,
+                              width: "30%",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Producto
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              color: Colors.negro,
+                              width: "20%",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Tienda
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              color: Colors.negro,
+                              width: "20%",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Días hasta vencimiento
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              color: Colors.negro,
+                              width: "20%",
+                              fontWeight: "bold",
+                              marginRight: "4%"
+                            }}
+                          >
+                            Fecha de vencimiento
+                          </Text>
+                        </View>
+
+                        <View style={{
+                          width: "100%", // Ancho del separador
+                          height: 1, // Altura de la línea (grosor)
+                          backgroundColor: Colors.negro, // Color blanco
+                        }} />
+
+                        {entradasProximasVencer.map((entrada, index) => (
+                          <View
+                            key={index}
+                            style={{
+                              marginBottom: 10,
+                              marginLeft: "5%",
+                              marginTop: "2%",
+                              width: "100%",
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              borderBottomWidth: 1,
+                              borderBottomColor: Colors.gris_claro,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: Colors.negro,
+                                width: "30%",
+                              }}
+                            >
+                              {entrada.producto.nombre}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: Colors.negro,
+                                width: "20%",
+                              }}
+                            >
+                              {entrada.tienda.nombre}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: Colors.negro,
+                                width: "20%",
+                              }}
+                            >
+                              {`Faltan ${Math.round(
+                                (new Date(entrada.fecha_vencimiento).getTime() -
+                                  new Date().getTime()) /
+                                  (1000 * 3600 * 24)
+                              )} días`}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: Colors.negro,
+                                width: "20%",
+                                marginRight: "3%"
+                              }}
+                            >
+                              {entrada.fecha_vencimiento.split("T")[0]}
+                            </Text>
+                          </View>
+                        ))}
+                      </ScrollView>
+                    </View>
+                  )}
                 </ScrollView>
               </View>
             </View>
@@ -870,24 +1106,44 @@ const Navbar = () => {
                 borderWidth: 1,
                 borderColor: Colors.blanco,
                 borderRadius: 15,
-                width: 260,
+                width: 300,
                 height: 60,
+                marginVertical: 10,
               }}
             >
-              <Text style={{ fontSize: 18, color: Colors.blanco }}>
-                Usuario
-              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={{ fontSize: 20, color: Colors.blanco }}>
+                  Usuario
+                </Text>
+                {notificacionesPendientes > 0 && (
+                  <View
+                    style={{
+                      backgroundColor: Colors.rojo_oscuro,
+                      borderRadius: 10,
+                      width: 20,
+                      height: 20,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginLeft: 5,
+                    }}
+                  >
+                    <Text style={{ fontSize: 12, color: Colors.blanco }}>
+                      {notificacionesPendientes}
+                    </Text>
+                  </View>
+                )}
+              </View>
               <View style={styles.separatorBlanco} />
-              <Text style={{ fontSize: 14, color: Colors.blanco }}>
+              <Text style={{ fontSize: 16, color: Colors.blanco }}>
                 Nombre: {usuario?.nombre}
               </Text>
-              <Text style={{ fontSize: 14, color: Colors.blanco }}>
+              <Text style={{ fontSize: 16, color: Colors.blanco }}>
                 Usuario: {usuario?.nombre_usuario}
               </Text>
               <TouchableOpacity
                 style={{
                   width: "90%",
-                  height: "40%",
+                  height: "45%",
                   marginTop: "5%",
                   backgroundColor: Colors.azul_Suave,
                   borderRadius: 15,
@@ -900,7 +1156,7 @@ const Navbar = () => {
                 }}
                 onPress={() => navigation.navigate("Login")}
               >
-                <Text style={{ fontSize: 14, color: Colors.blanco }}>
+                <Text style={{ fontSize: 16, color: Colors.blanco }}>
                   Cerrar Sesión
                 </Text>
               </TouchableOpacity>
@@ -1117,6 +1373,163 @@ const Navbar = () => {
                       Cambiar Contraseña
                     </Text>
                   </TouchableOpacity>
+
+                  {notificacionesPendientes > 0 && (
+                    <View
+                      style={{
+                        width: "90%",
+                        height: "50%",
+                        backgroundColor: Colors.blanco_Suave,
+                        borderRadius: 15,
+                        alignItems: "center",
+                        shadowColor: "#000",
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 5,
+                        elevation: 5,
+                        marginLeft: 10,
+                        marginTop: 10,
+                        marginBottom: 10,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          color: Colors.negro,
+                          textShadowColor: "rgba(0, 0, 0, 0.5)",
+                          textShadowOffset: { width: 1, height: 1 },
+                          textShadowRadius: 2,
+                        }}
+                      >
+                        Notificaciones Pendientes
+                      </Text>
+                      <ScrollView
+                        style={{ width: "100%" }}
+                        contentContainerStyle={{
+                          alignItems: "center",
+                          paddingBottom: 20,
+                        }}
+                      >
+                        <View
+                          style={{
+                            marginBottom: 10,
+                            marginLeft: "5%",
+                            marginTop: "2%",
+                            width: "100%",
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              color: Colors.negro,
+                              width: "30%",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Producto
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 14,
+                              color: Colors.negro,
+                              width: "20%",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Tienda
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 14,
+                              color: Colors.negro,
+                              width: "20%",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Días hasta vencimiento
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 14,
+                              color: Colors.negro,
+                              width: "20%",
+                              fontWeight: "bold",
+                              marginRight: "4%"
+                            }}
+                          >
+                            Fecha de vencimiento
+                          </Text>
+                        </View>
+
+                        <View style={{
+                          width: "100%", // Ancho del separador
+                          height: 1, // Altura de la línea (grosor)
+                          backgroundColor: Colors.negro, // Color blanco
+                        }} />
+
+                        {entradasProximasVencer.map((entrada, index) => (
+                          <View
+                            key={index}
+                            style={{
+                              marginBottom: 10,
+                              marginLeft: "5%",
+                              marginTop: "2%",
+                              width: "100%",
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              borderBottomWidth: 1,
+                              borderBottomColor: Colors.gris_claro,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                fontSize: 16,
+                                color: Colors.negro,
+                                width: "30%",
+                              }}
+                            >
+                              {entrada.producto.nombre}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 14,
+                                color: Colors.negro,
+                                width: "20%",
+                              }}
+                            >
+                              {entrada.tienda.nombre}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 14,
+                                color: Colors.negro,
+                                width: "20%",
+                              }}
+                            >
+                              {`Faltan ${Math.round(
+                                (new Date(entrada.fecha_vencimiento).getTime() -
+                                  new Date().getTime()) /
+                                  (1000 * 3600 * 24)
+                              )} días`}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 14,
+                                color: Colors.negro,
+                                width: "20%",
+                              }}
+                            >
+                              {entrada.fecha_vencimiento.split("T")[0]}
+                            </Text>
+                          </View>
+                        ))}
+                      </ScrollView>
+                    </View>
+                  )}
                 </ScrollView>
               </View>
             </View>

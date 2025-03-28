@@ -578,7 +578,7 @@ export default function TiendasView() {
         }
       } else {
         // No hay % en la cadena
-        validarCampos += "-Deve poner el % a la derecha de la comición.\n";
+        validarCampos += "-Debe poner el % a la derecha de la comición.\n";
         flag = false;
       }
 
@@ -643,7 +643,7 @@ export default function TiendasView() {
         }
       } else {
         // No hay % en la cadena
-        validarCampos += "-Deve poner el % a la derecha de la comición.\n";
+        validarCampos += "-Debe poner el % a la derecha de la comición.\n";
         flag = false;
       }
 

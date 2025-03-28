@@ -229,7 +229,7 @@ export default function ServiciosView() {
               }}
             />
           ) : (
-            <Text>La tabla de movil deve ir aquí</Text>
+            <Text>La tabla de movil debe ir aquí</Text>
           )}
           {/*Lista que se despliega para filtrar los productos*/}
           {isExpanded && (

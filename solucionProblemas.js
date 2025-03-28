@@ -1,42 +1,7 @@
 const axios = require("axios");
 
-const host = "http://147.93.128.46:3000";
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjozMiwibm9tYnJlIjoiRGF2aWQiLCJpYXQiOjE3Mzc4NzI3NDUsImV4cCI6MTczNzg5MDc0NX0.BO_IxXgE5rq87CVOCdEMY_Elvyyc8Bg1-YToOB9XCa4";
-
-// Recive las entradas de un producto y devuelve el costo promedio de ese producto
-const calcularPromedioAcomulado = (
-  entradas,
-  cantidadEnLaEmpresa
-) => {
-  let cantidad_existencia = 0;
-  let costo_promedio = 0;
-  let cantidadVendida = 0;
-
-  // Sacar cantidad vendida
-  entradas.forEach((entrada) => {
-    cantidadVendida += entrada.cantidad;
-  });
-  cantidadVendida = cantidadVendida - cantidadEnLaEmpresa;
-  
-  entradas.forEach((entrada) => {
-    let entradaActual = entrada;
-
-    if (parseInt(entradaActual.cantidad) > cantidadVendida) {
-      entradaActual.cantidad -= cantidadVendida;
-      cantidadVendida = 0;
-      let costo_i = parseFloat(entradaActual.costo);
-      let cantidad_i = parseFloat(entradaActual.cantidad);
-      costo_promedio =
-        (cantidad_existencia * costo_promedio + cantidad_i * costo_i) /
-        (cantidad_existencia + cantidad_i);
-      cantidad_existencia = cantidad_existencia + cantidad_i;
-    } else {
-      cantidadVendida -= parseInt(entradaActual.cantidad);
-    }
-  });
-
-  return costo_promedio.toFixed(5);
-}
+const host = "https://my-leniogestionbackend-w5gc.onrender.com";
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjoxLCJub21icmUiOiJEYXZpZCBRdWludGFuYSIsImlhdCI6MTc0MzAwMTg0NiwiZXhwIjoxNzQzMDE5ODQ2fQ.Zafh0bvzBaK7hyElVabyASTMfLfqgar2IIKtBiyAvzY";
 
 // Obtener todos los productos
 const getAllProductos = async (token) => {
@@ -137,68 +102,6 @@ const getServicioById = async (token, id) => {
     }
 };
 
-const getAllServicio = async (token) => {
-    try {
-        const response = await axios.get(`${host}/Servicio`, {
-            headers: {
-                Authorization: `${token}`,
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.log("Error al obtener servicio: ", error);
-        return false;
-    }
-};
-
-const getVentaByIdServicio = async (token, id) => {
-    try {
-        const response = await axios.get(`${host}/Venta/getbyServicio/${id}`, {
-            headers: {
-                Authorization: `${token}`,
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.log("Error al obtener venta por servicio: ", error);
-        return false;
-    }
-};
-
-const getProductoCantidadTotal = async (token, id) => {
-    try {
-        const response = await axios.get(`${host}/Producto_tienda/getCantidadTotal/${id}`, {
-            headers: {
-                Authorization: `${token}`,
-            },
-        });
-        return response.data.cantidad_total;
-    } catch (error) {
-        console.log("Error al obtener venta por servicio: ", error);
-        return false;
-    }
-};
-
-const updateServicioCosto = async (token, id, costo) => {
-    try {
-        const response = await axios.put(
-              `${host}/Servicio/updateServicio/${id}`,
-              {
-                costo: costo
-              },
-              {
-                headers: {
-                  Authorization: `${token}`,
-                },
-              }
-            );
-        return response.data;
-    } catch (error) {
-        console.log("Error al actualizar servicio: ", error);
-        return false;
-    }
-};
-
 const getAllMovimientos = async (token) => {
     try {
         const response = await axios.get(`${host}/Salida`, {
@@ -213,32 +116,8 @@ const getAllMovimientos = async (token) => {
     }
 };
 
-(async () =>{
-    console.log("Opteniendo datos de servicios");
-    
-    const resultAllServicios = await getAllServicio(token);
-
-    for(servicio of resultAllServicios){
-        if (
-            servicio.tipo_servicio.id_tipo_servicio === 2 ||
-            servicio.tipo_servicio.id_tipo_servicio === 4 ||
-            servicio.tipo_servicio.id_tipo_servicio === 25
-        ) {
-            const resultVenta = await getVentaByIdServicio(token, servicio.id_servicio)
-            const cantidadTotalProducto = await getProductoCantidadTotal(token, resultVenta.producto.id_producto)
-            const resultEntradas = await getAllEntradasByProducto(token, resultVenta.producto.id_producto)
-
-            const costoPromedio = calcularPromedioAcomulado(resultEntradas, cantidadTotalProducto);
-
-            if (servicio.costo !== costoPromedio) {
-                await updateServicioCosto(token, servicio.id_servicio, costoPromedio);
-            }
-            console.log("IDP: ",resultVenta.producto.id_producto," IDS: ", resultVenta.servicio.id_servicio," : ",costoPromedio, " -> ", (servicio.costo !== costoPromedio));
-        }
-    }
-})();
 // Llamar a la función y manejar la respuesta
-/*(async () => {
+(async () => {
     console.log("Obteniendo productos");
     const resultAllProductos = await getAllProductos(token)
     const resultMovimientos = await getAllMovimientos(token)
@@ -296,7 +175,7 @@ const getAllMovimientos = async (token) => {
                         console.log("  Movimientos: ",sumaCantMovi);
                         console.log("  Ventas: ",sumaCantVentas);
                         console.log("  Existencia: ",productoTienda.cantidad);
-
+			console.log("  Dede tener -> ", (sumaCantEntradas + sumaCantMovi - sumaCantVentas));
                     }
                     sumaCantEntradas = 0
                     sumaCantMovi = 0
@@ -307,4 +186,4 @@ const getAllMovimientos = async (token) => {
     } else {
         console.log("Error al obtener todos los productos");
     }
-})();*/
+})();

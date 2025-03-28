@@ -293,7 +293,7 @@ export default function ServiciosView() {
   const [isPermisoVerCostoVenta, setIsPermisoVerCostoVenta] = useState(false);
 
   const mensajeSumaVenta = () => {
-    let mensaje = `Se deve cobrar USD: ${
+    let mensaje = `Se debe cobrar USD: ${
       parseFloat(precioUSDDetails) * parseFloat(cantidadProductoDetails)
     }  CUP: ${(
       parseFloat(precioCUPDetails) * parseFloat(cantidadProductoDetails)
@@ -1208,7 +1208,7 @@ export default function ServiciosView() {
       if (parseFloat(precioUSDDetails) !== parseFloat(precioUSDDetailsAuxVal) && descripcionDetails === "") {
         flag = false;
       }
-      validarCampos += "-Si cambia el precio original del producto deve proporcionar una descripcipón del porque.\n"
+      validarCampos += "-Si cambia el precio original del producto debe proporcionar una descripcipón del porque.\n"
       if (
         precioUSDDetails === "" ||
         costoPromedioProductoUSDDetails === undefined
@@ -1962,10 +1962,10 @@ export default function ServiciosView() {
     "Nombre Cliente",
     "Tienda",
     "Tipo de Servicio",
-    "Precio USD",
-    "Precio CUP",
     "Producto",
     "Cantidad",
+    "P.Unitario",
+    "P.total CUP",
     "Fecha",
   ];
   const columnasMyDateTableTiendaModal = ["Nombre", "Cantidad"];
@@ -1980,10 +1980,10 @@ export default function ServiciosView() {
     "Nombre Cliente",
     "Tienda",
     "Tipo de Servicio",
-    "Precio USD",
-    "Precio CUP",
     "Producto",
     "Cantidad",
+    "P.Unitario",
+    "P.total CUP",
     "Fecha",
   ];
   const columnasMyDateTable = isMobile
