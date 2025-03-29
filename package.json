@@ -30,6 +30,7 @@
     "fs": "^0.0.1-security",
     "http-server": "^14.1.1",
     "mdb-react-ui-kit": "^9.0.0",
+    "pg": "^8.14.1",
     "react": "18.2.0",
     "react-datepicker": "^8.1.0",
     "react-dom": "^18.3.1",

@@ -499,7 +499,7 @@ export const MyDateTableServicios: React.FC<Props> = ({
                       color: item.devuelto ? Colors.gris_claro : Colors.negro,
                     }}
                   >
-                    {(item.cantidad)? ((parseFloat(item.precio) / parseInt(item.cantidad)) * cambioMoneda).toFixed(0) : ""}
+                    {(item.cantidad)? ((parseFloat(item.precio) * parseInt(item.cantidad)) * cambioMoneda).toFixed(0) : ""}
                   </Text>
                 </DataTable.Cell>
 
@@ -516,7 +516,7 @@ export const MyDateTableServicios: React.FC<Props> = ({
                       color: item.devuelto ? Colors.gris_claro : Colors.negro,
                     }}
                   >
-                    {(parseFloat(item.precio) * cambioMoneda).toFixed(0)}
+                    {(item.cantidad)? (((parseFloat(item.precio) * parseInt(item.cantidad)) * cambioMoneda).toFixed(0)) : (parseFloat(item.precio) * cambioMoneda).toFixed(0)}
                   </Text>
                 </DataTable.Cell>
 
@@ -1124,7 +1124,7 @@ export const MyDateTableServicios: React.FC<Props> = ({
                       color: item.devuelto ? Colors.gris_claro : Colors.negro,
                     }}
                   >
-                    {(item.cantidad)? ((parseFloat(item.precio) / parseInt(item.cantidad)) * cambioMoneda).toFixed(0) : ""}
+                    {(item.cantidad)? ((parseFloat(item.precio)) * cambioMoneda).toFixed(0) : ""}
                   </Text>
                 </DataTable.Cell>
 
@@ -1141,7 +1141,7 @@ export const MyDateTableServicios: React.FC<Props> = ({
                       color: item.devuelto ? Colors.gris_claro : Colors.negro,
                     }}
                   >
-                    {(parseFloat(item.precio) * cambioMoneda).toFixed(0)}
+                    {(item.cantidad)? (((parseFloat(item.precio) * parseInt(item.cantidad)) * cambioMoneda).toFixed(0)) : (parseFloat(item.precio) * cambioMoneda).toFixed(0)}
                   </Text>
                 </DataTable.Cell>
 
