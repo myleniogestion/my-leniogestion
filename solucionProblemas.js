@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 const host = "https://my-leniogestionbackend-w5gc.onrender.com";
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjoxLCJub21icmUiOiJEYXZpZCBRdWludGFuYSIsImlhdCI6MTc0MzAwMTg0NiwiZXhwIjoxNzQzMDE5ODQ2fQ.Zafh0bvzBaK7hyElVabyASTMfLfqgar2IIKtBiyAvzY";
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjoxLCJub21icmUiOiJEYXZpZCBRdWludGFuYSIsImlhdCI6MTc0MzUzMjE2MCwiZXhwIjoxNzQzNTUwMTYwfQ.nLX7NzUugBLNPTvlqDMGVOG8_E-33rPzEwiyiM_OUaM";
 
 // Obtener todos los productos
 const getAllProductos = async (token) => {
@@ -16,6 +16,33 @@ const getAllProductos = async (token) => {
         console.log("Error al obtener datos de los productos: ", error);
         return false;
     }
+};
+
+// Modificar producto tienda
+const updateProductoTienda = async (
+  token,
+  id_producto,
+  id_tienda,
+  cantidad
+) => {
+  try {
+    await axios.put(
+      `${host}/Producto_tienda/updateProducto_tienda`,
+      {
+        id_producto: id_producto,
+        id_tienda: id_tienda,
+        cantidad: cantidad
+      },
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+  } catch (error) {
+    console.log("Error actualizar el producto_tienda: ", error);
+    return false;
+  }
 };
 
 const getProductoById = async (token, id) => {
@@ -176,6 +203,8 @@ const getAllMovimientos = async (token) => {
                         console.log("  Ventas: ",sumaCantVentas);
                         console.log("  Existencia: ",productoTienda.cantidad);
 			console.log("  Dede tener -> ", (sumaCantEntradas + sumaCantMovi - sumaCantVentas));
+
+                        //await updateProductoTienda(token, productoTienda.producto.id_producto, productoTienda.tienda.id_tienda, (sumaCantEntradas + sumaCantMovi - sumaCantVentas))
                     }
                     sumaCantEntradas = 0
                     sumaCantMovi = 0

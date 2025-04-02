@@ -13,7 +13,9 @@ import {
   ScrollView,
 } from "react-native";
 import { Colors } from "../styles/Colors";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { getValorMonedaUSD } from "../services/MonedaService";
+import { useUsuario } from "../contexts/UsuarioContext";
 
 export interface ProveedoresShowModal {
   id_proveedor: string;
@@ -33,12 +35,32 @@ export const MyDateTableModalShowDateProveedores: React.FC<Props> = ({
 }) => {
   const navigation = useNavigation();
   const [scale] = React.useState(new Animated.Value(1));
+  const [cambioMoneda, setCambioMoneda] = React.useState(0);
+  const { usuario } = useUsuario();
 
   const [page, setPage] = React.useState<number>(0);
   const [itemsPerPage, setItemsPerPage] = React.useState<number>(3);
   const [displayedItems, setDisplayedItems] = React.useState<
     ProveedoresShowModal[]
   >([]); // Estado para los elementos mostrados
+
+  const runEffects = async () => {
+    // Actualizar cambio de moneda
+    if (localStorage.getItem("cambioMoneda") === null) {
+      setCambioMoneda(await getValorMonedaUSD(usuario.token));
+    } else {
+      setCambioMoneda(parseFloat(localStorage.getItem("cambioMoneda")));
+    }
+  };
+  useFocusEffect(
+    React.useCallback(() => {
+      runEffects();
+
+      return () => {
+        // Código que se ejecuta cuando se cierra la interfaz
+      };
+    }, [])
+  );
 
   React.useEffect(() => {
     // Actualiza los elementos mostrados al cambiar de página
@@ -110,10 +132,7 @@ export const MyDateTableModalShowDateProveedores: React.FC<Props> = ({
           {showTableColumns()}
 
           {displayedItems.map((item) => (
-            <DataTable.Row
-              key={item.id_proveedor}
-              onPress={() => {}}
-            >
+            <DataTable.Row key={item.id_proveedor} onPress={() => {}}>
               <DataTable.Cell style={styles.handerRow}>
                 <Text
                   style={{ flexWrap: "wrap", width: "100%", textAlign: "left" }}
@@ -126,7 +145,7 @@ export const MyDateTableModalShowDateProveedores: React.FC<Props> = ({
                 {item.cantidad}
               </DataTable.Cell>
               <DataTable.Cell numeric style={styles.handerRow}>
-                {item.costoPorUnidad}
+                {(item.costoPorUnidad * cambioMoneda).toFixed(0)}
               </DataTable.Cell>
             </DataTable.Row>
           ))}

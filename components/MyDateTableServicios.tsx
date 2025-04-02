@@ -185,7 +185,6 @@ export const MyDateTableServicios: React.FC<Props> = ({
     let sumaMinoristaUSD = 0;
     let sumaMayoristaUSD = 0;
     let sumaTransferencias = 0;
-    console.log(items);
 
     items.forEach((item) => {
       if (!item.devuelto) {
@@ -499,7 +498,7 @@ export const MyDateTableServicios: React.FC<Props> = ({
                       color: item.devuelto ? Colors.gris_claro : Colors.negro,
                     }}
                   >
-                    {(item.cantidad)? ((parseFloat(item.precio) * parseInt(item.cantidad)) * cambioMoneda).toFixed(0) : ""}
+                    {(item.cantidad)? ((parseFloat(item.precio)) * cambioMoneda).toFixed(0) : ""}
                   </Text>
                 </DataTable.Cell>
 
