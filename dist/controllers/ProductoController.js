@@ -1,0 +1,260 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProductoController = void 0;
+const ProductoService_1 = require("../services/ProductoService");
+const Ordenar_criterios_1 = require("../helpers/Ordenar_criterios");
+const XLSX = __importStar(require("xlsx"));
+class ProductoController {
+    constructor(productoService = new ProductoService_1.ProductoService()) {
+        this.productoService = productoService;
+    }
+    createProducto(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield this.productoService.createProducto(req.body);
+                res.status(200).json(data);
+            }
+            catch (e) {
+                res.status(500).json({ "error": e.message });
+            }
+        });
+    }
+    getProducto(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield this.productoService.findAllProducto();
+                res.status(200).json(data);
+            }
+            catch (e) {
+                res.status(500).json({ "error": e.message });
+            }
+        });
+    }
+    getProductoById(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { ID } = req.params;
+            try {
+                const data = yield this.productoService.findProductoById(parseInt(ID));
+                if (data)
+                    res.status(200).json(data);
+                else
+                    res.status(404).json();
+            }
+            catch (e) {
+                res.status(500).json({ "error": e.message });
+            }
+        });
+    }
+    updateProducto(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { ID } = req.params;
+            try {
+                const data = yield this.productoService.updateProducto(parseInt(ID), req.body);
+                res.status(200).json(data);
+            }
+            catch (e) {
+                res.status(500).json({ "error": e.message });
+            }
+        });
+    }
+    deleteProducto(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { ID } = req.params;
+            try {
+                const data = yield this.productoService.deleteProducto(parseInt(ID));
+                res.status(200).json(data);
+            }
+            catch (e) {
+                res.status(500).json({ "error": e.message });
+            }
+        });
+    }
+    getAllImages(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { ID } = req.params;
+            try {
+                console.log(ID);
+                const data = yield this.productoService.getAllimagenesProductobyId(parseInt(ID));
+                if (data)
+                    res.status(200).json(data);
+                else
+                    res.status(404).json("No encontraron las fotos");
+            }
+            catch (e) {
+                res.status(500).json({ "error": e.message });
+            }
+        });
+    }
+    filtrarProducto(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { nombre, sku, precio_liminf, precio_limsup, id_tienda, cantidad } = req.body;
+            console.log(nombre, sku, precio_liminf, precio_limsup, id_tienda);
+            try {
+                const data = yield this.productoService.filtrarProducto(nombre, sku, precio_liminf, precio_limsup, id_tienda, cantidad);
+                if (data) {
+                    res.status(200).json(data);
+                }
+                else
+                    res.status(404).json(data);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+        });
+    }
+    OrdenarProductos(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let { items, criterio, ascendente } = req.body;
+            try {
+                console.log(typeof (ascendente));
+                const data = yield (0, Ordenar_criterios_1.OrdenarProducto)(ascendente, items, criterio);
+                (data) ? res.status(200).json(data) : res.status(404).json("no se puede ordenar");
+            }
+            catch (error) {
+                res.status(500).json({ "error": error.message });
+            }
+        });
+    }
+    AgregarTiendaAProducto(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id_tienda, id_producto } = req.body;
+            try {
+                const data = yield this.productoService.agregarTienda(parseInt(id_producto), parseInt(id_tienda));
+                (data) ? res.status(200).json(data) : res.status(404).json("Producto no encontrado");
+            }
+            catch (error) {
+                res.status(500).json({ "error": error.message });
+            }
+        });
+    }
+    DeleteAllTiendasinProducto(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.productoService.DeleteAllTiendasinProducto();
+                res.status(200).json(true);
+            }
+            catch (error) {
+                res.status(500).json({ "error": error.message });
+            }
+        });
+    }
+    HacerExcel(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { productos } = req.body;
+            try {
+                const worksheet = XLSX.utils.json_to_sheet(productos);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Productos');
+                const date = new Date();
+                const str = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+                const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+                res.setHeader('Content-Disposition', `attachment; filename=productos-${str}.xlsx`);
+                res.setHeader('Content-Type', 'application/octet-stream');
+                res.send(excelBuffer);
+            }
+            catch (error) {
+                res.status(500).json({ "error": error.message });
+            }
+        });
+    }
+    ImportarExcel(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { path } = req.body;
+            try {
+                const data = yield this.productoService.procesarExcel(path);
+                res.status(200).json(data);
+            }
+            catch (error) {
+                res.status(500).json({ "error": error.message });
+            }
+            ;
+        });
+    }
+    findbySku(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { sku } = req.params;
+            try {
+                const data = yield this.productoService.findbySku(sku);
+                (data) ? res.status(200).json(data) : res.status(404).json("No se encontro");
+            }
+            catch (error) {
+                res.status(500).json({ "error": error.message });
+            }
+        });
+    }
+    getAllPaginated(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { page } = req.params;
+            try {
+                const data = yield this.productoService.getAllPaginated(parseInt(page));
+                (data) ? res.status(200).json(data) : res.status(404).json("Data not found");
+            }
+            catch (error) {
+                res.status(500).json({ "error": error.message });
+            }
+        });
+    }
+    HacerExcelwithColumns(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { productos, columns } = req.body;
+            try {
+                // Crear una hoja de trabajo desde productos y aplicar las columnas
+                const worksheet = XLSX.utils.json_to_sheet(productos, { header: columns });
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Productos');
+                const date = new Date();
+                const str = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+                const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+                res.setHeader('Content-Disposition', `attachment; filename=productos-${str}.xlsx`);
+                res.setHeader('Content-Type', 'application/octet-stream');
+                res.send(excelBuffer);
+            }
+            catch (error) {
+                res.status(500).json({ "error": error.message });
+            }
+        });
+    }
+}
+exports.ProductoController = ProductoController;
