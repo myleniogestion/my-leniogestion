@@ -17,7 +17,6 @@ yarn-error.log
 /src/config/ormconfig
 /imagenes
 /build
-/web-build
 /.expo
 
 # IDEs and editors
