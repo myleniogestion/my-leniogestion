@@ -53,6 +53,7 @@ import {
   getProductoById,
   getProductoCantidadTotal,
   getRelacionProductoByTienda,
+  matchProductoInTienda,
   updateProductoTienda,
 } from "../services/ProductoServices";
 import { ProductoPiker } from "../components/MyDateTableProductos";
@@ -206,34 +207,8 @@ export default function ServiciosView() {
   const [isModalAddMultiServicio, setIsModalAddMultiServicio] = useState(false);
   const [isModalAddMultiServicioSingle, setIsModalAddMultiServicioSingle] =
     useState(false);
-  const [multiServiciosItems, setMltiServiciosItems] = useState([
-    {
-      id: 1,
-      nombreProducto: "Servicio 1",
-      cantidad: 2,
-      precio: 100.0,
-    },
-    {
-      id: 2,
-      nombreProducto: "Servicio 2",
-      cantidad: 3,
-      precio: 200.0,
-    },
-    {
-      id: 3,
-      nombreProducto: "Servicio 3",
-      cantidad: 1,
-      precio: 50.0,
-    },
-    {
-      id: 4,
-      nombreProducto: "Servicio 4",
-      cantidad: 4,
-      precio: 300.0,
-    },
-  ]);
-  const [singleServiceItem, setSingleServiceItem] = useState({});
-  const [idClienteMutiDetails, setIdClienteMultiDetails] = useState("1");
+  const [multiServiciosItems, setMltiServiciosItems] = useState<any[]>([]);
+  const [idClienteMutiDetails, setIdClienteMultiDetails] = useState("");
   const [idTiendaMultiDetails, setIdTiendaMultiDetails] = useState(
     usuario?.id_tienda
   );
@@ -1262,8 +1237,211 @@ export default function ServiciosView() {
     setSelecterActivoDetails("");
   };
 
-  // Agregar servicio a la lista de servoicio a la lista para venta multiples
+  // Agregar miltiples servicios al sistema
   const addNewMultiServicio = async () => {
+    if (isButtonDisabled) return; // Si el botón está deshabilitado, no hacer nada
+
+    setIsButtonDisabled(true); // Deshabilitar el botón
+
+    setIsBotonModalMesajeVisible(false);
+    setModalMensaje("Agregando multiples ventas. Espere por favor");
+    setModalMensajeView(true);
+    // Comprobar campos para agregar el producto
+    if (usuario?.token) {
+      // Validar que se halla seleccionado un Cliente y una Tienda
+      if (
+        idClienteMutiDetails === "" ||
+        idTiendaMultiDetails === "" ||
+        multiServiciosItems.length === 0
+      ) {
+        setModalMensaje(
+          "Debe seleccionar un Cliente y una Tienda para continuar o no hay ventas que agregar."
+        );
+        setIsBotonModalMesajeVisible(true);
+        setModalMensajeView(true);
+        setIsButtonDisabled(false);
+        return;
+      }
+
+      let flag: boolean = true;
+      let validarCampos: string =
+        "ERROR AL AGREGAR VENTAS. Por favor verifique las siguientes ventas:\n";
+      for (let i = 0; i < multiServiciosItems.length; i++) {
+        const item = multiServiciosItems[i];
+        const auxIsProductoInTienda = await isProductoInTienda(
+          usuario.token,
+          item.idProductoDetails,
+          idTiendaMultiDetails || ""
+        );
+        let validarCamposSingle = "-" + item.nombreProducto + ":\n";
+        let auxFlag = true;
+
+        // Validar campos
+        if (item.isGarantiaDetails && parseInt(idClienteMutiDetails) === 1) {
+          auxFlag = false;
+          validarCamposSingle +=
+            "-  La venta del producto " +
+            item.nombreProducto +
+            " tiene garantía por lo que el cliente no puede ser anónimo.\n";
+        }
+        if (auxIsProductoInTienda) {
+          if (
+            parseInt(auxIsProductoInTienda.cantidad) <
+            parseInt(item.cantidadProductoDetails)
+          ) {
+            auxFlag = false;
+            validarCamposSingle +=
+              "-  La cantidad que desea vender del producto " +
+              item.nombreProducto +
+              " es mayor que la cantidad que hay en la tienda.\n";
+          }
+        }
+        if (item.isDeudaDetails) {
+          if (parseInt(idClienteMutiDetails) === 1) {
+            auxFlag = false;
+            validarCamposSingle +=
+              "-  La venta el producto " +
+              item.nombreProducto +
+              " genera una deuda por tanto, el cliente no puede ser anónimo.\n";
+          }
+        }
+
+        if (!auxFlag) {
+          flag = false;
+          validarCampos += validarCamposSingle;
+        }
+      }
+
+      if (flag) {
+        for (let i = 0; i < multiServiciosItems.length; i++) {
+          const item = multiServiciosItems[i];
+          const resultAddServicio = await addServicio(
+            usuario.token,
+            item.fecha,
+            item.precioUSDDetails,
+            item.notaDetails,
+            item.descripcionDetails,
+            idTiendaMultiDetails,
+            2,
+            item.costoPromedioProductoUSDDetails,
+            item.cantidadTransferencia,
+            idClienteMutiDetails,
+            "Not suport yet",
+            "not suport yet"
+          );
+          /*
+          if (resultAddServicio === false) {
+            setModalMensaje(
+              "Ha ocurrido un ERROR al agregar el servicio. Es posible que el error haya ocurrido por problemas de conexión. Si el problema persiste contacte al administrador."
+            );
+            setIsBotonModalMesajeVisible(true);
+            setModalMensajeView(true);
+            setIsButtonDisabled(false);
+            return;
+          }
+            */
+
+          //Agregar Garantía si es que hay
+          if (item.isGarantiaDetails) {
+            await addGarantia(
+              usuario.token,
+              duracionGarantiaDetails,
+              resultAddServicio.id_servicio
+            );
+          }
+          // Agregar Deuda y pago de deuda si es que existen
+          if (item.isDeudaDetails) {
+            const resultDeuda = await addDeuda(
+              usuario.token,
+              item.precioUSDDetails,
+              resultAddServicio.id_servicio,
+              undefined
+            );
+            if (
+              item.adelantoUSDDeudaDetails &&
+              parseFloat(item.adelantoUSDDeudaDetails) > 0
+            ) {
+              await addPagoDeuda(
+                usuario.token,
+                item.adelantoUSDDeudaDetails,
+                item.fecha,
+                resultDeuda.id_deuda
+              );
+            }
+          }
+
+          //Agregar venta
+          await addVenta(
+            usuario.token,
+            item.idProductoDetails,
+            resultAddServicio.id_servicio,
+            item.cantidadProductoDetails
+          );
+          await tienda_Realizarventa(
+            usuario.token,
+            item.idProductoDetails,
+            idTiendaMultiDetails,
+            `${parseInt(item.cantidadProductoDetails)}`
+          );
+
+          // Machear producto
+          await matchProductoInTienda(usuario.token, item.idProductoDetails, idTiendaMultiDetails);
+
+          // Agregar Acción de usuario agregar servicio normal
+          const nombreCliente = dropdownItemsNombreCliente.find((element) => {
+            return element.value === idClienteMutiDetails;
+          });
+          const nombreTipoServicio = dropdownItemsNombreTipoServicio.find(
+            (element) => {
+              return element.value === "2";
+            }
+          );
+          const nombreProducto = dropdownItemsNombreproducto.find((element) => {
+            return element.value === item.idProductoDetails;
+          });
+          const currentDate = new Date();
+          const year = String(currentDate.getFullYear());
+          const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
+          const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
+          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} agregó un servicio del tipo de servicio ${nombreTipoServicio?.label} al cliente ${nombreCliente?.label}. Se vendió una cantidad de ${cantidadProductoDetails} del producto ${nombreProducto?.label} a un precio de ${precioUSDDetails} USD`;
+          await addAccionUsuario(
+            usuario.token,
+            auxAddAccionUsuarioDescripcion,
+            `${year}-${month}-${day}`,
+            usuario.id_usuario,
+            7
+          );
+          await createProductoInTienda(
+            usuario.token,
+            idTipoServicioDetails,
+            idTiendaMultiDetails
+          );
+        }
+
+        setIsBotonModalMesajeVisible(true);
+        setModalMensaje(`Las Ventas se agregaron con exito`);
+        setModalMensajeView(true);
+        setReflechModalMensajeView(true);
+        setIdClienteDetails("");
+        setPrecioUSDDetails("");
+        setPrecioCUPDetails("");
+        setCantidadProductoDetails("");
+        setCostoPromedioProductoUSDDetails("");
+        setIdTipoServicioDetails("");
+        setCantidadProductoDetails("");
+        setNotaDetails("");
+        setDescripcionDetails("");
+        setDuracionGarantiaDetails("");
+      } else {
+        setModalMensaje(validarCampos);
+        setIsBotonModalMesajeVisible(true);
+        setModalMensajeView(true);
+      }
+    }
+    setIsButtonDisabled(false);
+  };
+  // Agregar servicio a la lista de servoicio a la lista para venta multiples
+  const addNewMultiServicioToList = async () => {
     if (isButtonDisabled) return; // Si el botón está deshabilitado, no hacer nada
 
     setIsButtonDisabled(true); // Deshabilitar el botón
@@ -1273,11 +1451,6 @@ export default function ServiciosView() {
     setModalMensajeView(true);
     // Comprobar campos para agregar el producto
     if (usuario?.token) {
-      const auxIsProductoInTienda = await isProductoInTienda(
-        usuario.token,
-        idProductoDetails,
-        idTiendaDetails
-      );
       let flag: boolean = true;
       let validarCampos: string =
         "ERROR AL INGRESAR SERVICIO. Por favor verifique los siguientes campos:\n";
@@ -1320,16 +1493,6 @@ export default function ServiciosView() {
         validarCampos +=
           "-La cantidad de la transferencia es mayor que el precio del producto. \n";
       }
-      if (auxIsProductoInTienda) {
-        if (
-          parseInt(auxIsProductoInTienda.cantidad) <
-          parseInt(cantidadProductoDetails)
-        ) {
-          flag = false;
-          validarCampos +=
-            "-La cantidad que desea vender es mayor que la cantidad que hay en la tienda.\n";
-        }
-      }
       // Validaciones si es una venta
       if (
         parseInt(idTipoServicioDetails) === 2 ||
@@ -1368,7 +1531,8 @@ export default function ServiciosView() {
       // Validacion de deuda
       if (isDeudaDetails && !isEncargoProducto) {
         if (
-          parseFloat(adelantoUSDDeudaDetails) > parseFloat(precioUSDDetails)
+          parseFloat(adelantoUSDDeudaDetails) >
+          parseFloat(precioUSDDetails) * cambioMoneda
         ) {
           flag = false;
           validarCampos +=
@@ -1381,138 +1545,64 @@ export default function ServiciosView() {
       }
 
       if (flag) {
-        /*
-        const resultAddServicio = await addServicio(
-          usuario.token,
-          `${fechaMesDetails}-${fechaDiaDetails}-${fechaAnnoDetails}`,
-          precioUSDDetails,
-          notaDetails,
-          descripcionDetails,
-          idTiendaDetails,
-          idTipoServicioDetails,
-          costoPromedioProductoUSDDetails,
-          cantidadTransferencia === "" ? "0" : cantidadTransferencia,
-          idClienteDetails,
-          "Not suport yet",
-          "not suport yet"
-        );
-        console.log(resultAddServicio);
-
+        let detallesSingleServiceItem: any = {
+          fecha: `${fechaMesDetails}-${fechaDiaDetails}-${fechaAnnoDetails}`,
+          precioUSDDetails: precioUSDDetails,
+          notaDetails: notaDetails,
+          descripcionDetails: descripcionDetails,
+          costoPromedioProductoUSDDetails: costoPromedioProductoUSDDetails,
+          id:
+            multiServiciosItems.length === 0
+              ? 1
+              : Math.max(...multiServiciosItems.map((item) => item.id)) + 1,
+          cantidadTransferencia:
+            cantidadTransferencia === "" ? "0" : cantidadTransferencia,
+        };
         //Agregar Garantía si es que hay
         if (isGarantiaDetails) {
-          await addGarantia(
-            usuario.token,
-            duracionGarantiaDetails,
-            resultAddServicio.id_servicio
-          );
+          detallesSingleServiceItem = {
+            ...detallesSingleServiceItem,
+            isGarantiaDetails: isGarantiaDetails,
+            duracionGarantiaDetails: duracionGarantiaDetails,
+          };
         }
+
         // Agregar Deuda y pago de deuda si es que existen
         if (isDeudaDetails) {
-          const resultDeuda = await addDeuda(
-            usuario.token,
-            precioUSDDetails,
-            resultAddServicio.id_servicio,
-            undefined
-          );
+          detallesSingleServiceItem = {
+            ...detallesSingleServiceItem,
+            isDeudaDetails: isDeudaDetails,
+          };
           if (
             adelantoUSDDeudaDetails &&
             parseFloat(adelantoUSDDeudaDetails) > 0
           ) {
-            await addPagoDeuda(
-              usuario.token,
-              adelantoUSDDeudaDetails,
-              `${fechaMesDetails}-${fechaDiaDetails}-${fechaAnnoDetails}`,
-              resultDeuda.id_deuda
-            );
+            detallesSingleServiceItem = {
+              ...detallesSingleServiceItem,
+              adelantoUSDDeudaDetails: adelantoUSDDeudaDetails,
+            };
           }
         }
 
-        //Agregar venta si es que es necezario
-        if (
-          parseInt(idTipoServicioDetails) === 2 ||
-          parseInt(idTipoServicioDetails) === 25
-        ) {
-          await addVenta(
-            usuario.token,
-            idProductoDetails,
-            resultAddServicio.id_servicio,
-            cantidadProductoDetails
-          );
-          await tienda_Realizarventa(
-            usuario.token,
-            idProductoDetails,
-            idTiendaDetails,
-            `${parseInt(cantidadProductoDetails)}`
-          );
-
-          // Agregar Acción de usuario agregar servicio normal
-          const nombreCliente = dropdownItemsNombreCliente.find((element) => {
-            return element.value === idClienteDetails;
-          });
-          const nombreTipoServicio = dropdownItemsNombreTipoServicio.find(
-            (element) => {
-              return element.value === idTipoServicioDetails;
-            }
-          );
-          const nombreProducto = dropdownItemsNombreproducto.find((element) => {
-            return element.value === idProductoDetails;
-          });
-          const currentDate = new Date();
-          const year = String(currentDate.getFullYear());
-          const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
-          const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
-          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} agregó un servicio del tipo de servicio ${nombreTipoServicio?.label} al cliente ${nombreCliente?.label}. Se vendió una cantidad de ${cantidadProductoDetails} del producto ${nombreProducto?.label} a un precio de ${precioUSDDetails} USD`;
-          await addAccionUsuario(
-            usuario.token,
-            auxAddAccionUsuarioDescripcion,
-            `${year}-${month}-${day}`,
-            usuario.id_usuario,
-            7
-          );
-        } else {
-          // Si no es venta de ningun tipo comprobar si es encargo
-          if (parseInt(idTipoServicioDetails) === 26) {
-            await addEncargo(
-              usuario.token,
-              adelantoEncargo,
-              `${fechaAnnoDetailsEncargo}-${fechaMesDetailsEncargo}-${fechaDiaDetailsEncargo}`,
-              resultAddServicio.id_servicio
-            );
-          }
-
-          // Agregar Acción de usuario agregar servicio normal
-          const nombreCliente = dropdownItemsNombreCliente.find((element) => {
-            return element.value === idClienteDetails;
-          });
-          const nombreTipoServicio = dropdownItemsNombreTipoServicio.find(
-            (element) => {
-              return element.value === idTipoServicioDetails;
-            }
-          );
-          const currentDate = new Date();
-          const year = String(currentDate.getFullYear());
-          const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
-          const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
-          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} agregó un servicio del tipo de servicio ${nombreTipoServicio?.label} a un precio de ${precioUSDDetails} USD al cliente ${nombreCliente?.label}`;
-          await addAccionUsuario(
-            usuario.token,
-            auxAddAccionUsuarioDescripcion,
-            `${year}-${month}-${day}`,
-            usuario.id_usuario,
-            7
-          );
-        }
-
-        await createProductoInTienda(
-          usuario.token,
-          idTipoServicioDetails,
-          idTiendaDetails
-        );
+        //Agregar venta
+        const nombreProducto = dropdownItemsNombreproducto.find((element) => {
+          return element.value === idProductoDetails;
+        });
+        detallesSingleServiceItem = {
+          ...detallesSingleServiceItem,
+          idProductoDetails: idProductoDetails,
+          cantidadProductoDetails: cantidadProductoDetails,
+          nombreProducto: nombreProducto?.label,
+        };
+        setMltiServiciosItems([
+          ...multiServiciosItems,
+          detallesSingleServiceItem,
+        ]);
 
         setIsBotonModalMesajeVisible(true);
-        setModalMensaje(`El servicio se agregó con éxito`);
+        setModalMensaje(`El servicio se agregó a la lista`);
         setModalMensajeView(true);
-        setReflechModalMensajeView(true);
+        setReflechModalMensajeView(false);
         setIdClienteDetails("");
         setPrecioUSDDetails("");
         setPrecioCUPDetails("");
@@ -1523,14 +1613,7 @@ export default function ServiciosView() {
         setNotaDetails("");
         setDescripcionDetails("");
         setDuracionGarantiaDetails("");
-
-        setModalEntradasDates({
-          id_entrada: "",
-          isAddEntrada: false,
-          fileEditable: true,
-          isModificarEntrada: false,
-        });
-        */
+        setIdProductoDetails("");
       } else {
         setModalMensaje(validarCampos);
         setIsBotonModalMesajeVisible(true);
@@ -1539,7 +1622,6 @@ export default function ServiciosView() {
     }
     setIsButtonDisabled(false);
   };
-
   // Método para agregar un nuevo producto al sistema
   const addNewServicio = async () => {
     if (isButtonDisabled) return; // Si el botón está deshabilitado, no hacer nada
@@ -1745,6 +1827,9 @@ export default function ServiciosView() {
             `${parseInt(cantidadProductoDetails)}`
           );
 
+          // Mcahear datos de la cantidad del producto
+          await matchProductoInTienda(usuario.token, idProductoDetails, idTiendaDetails);
+          
           // Agregar Acción de usuario agregar servicio normal
           const nombreCliente = dropdownItemsNombreCliente.find((element) => {
             return element.value === idClienteDetails;
@@ -1823,6 +1908,7 @@ export default function ServiciosView() {
         setNotaDetails("");
         setDescripcionDetails("");
         setDuracionGarantiaDetails("");
+        setIdProductoDetails("");
 
         setModalEntradasDates({
           id_entrada: "",
@@ -2379,11 +2465,47 @@ export default function ServiciosView() {
         >
           {isPermisoAgregarServicio && (
             <TouchableOpacity
+              onPress={() =>
+                setIsModalAddMultiServicio(!isModalAddMultiServicio)
+              }
+              style={{
+                flexDirection: "row",
+                height: 40,
+                width: "40%",
+                alignItems: "center",
+                justifyContent: "center",
+                shadowColor: Colors.azul_Oscuro, // Color de la sombra
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.6, // Ajusta la opacidad para hacer la sombra más difuminada
+                shadowRadius: 14, // Difuminado
+                borderColor: Colors.azul_Claro,
+                borderWidth: 3,
+                padding: 10,
+                borderRadius: 10,
+                marginTop: "1%",
+                marginRight: "5%",
+                backgroundColor: Colors.azul_Claro, // Color de fondo del botón
+              }}
+            >
+              <Text
+                style={[
+                  styles.radioButtonTextDesktop,
+                  selectedOptionTipoOrden === "option1" &&
+                    styles.radioButtonSelected &&
+                    styles.radioButtonTextSelected,
+                ]}
+              >
+                Agregar Multiples Ventas
+              </Text>
+            </TouchableOpacity>
+          )}
+          {isPermisoAgregarServicio && (
+            <TouchableOpacity
               onPress={() => auxSetModalProovedoresDates()}
               style={{
                 flexDirection: "row",
                 height: 40,
-                width: "50%",
+                width: "40%",
                 alignItems: "center",
                 justifyContent: "center",
                 shadowColor: Colors.azul_Oscuro, // Color de la sombra
@@ -2769,6 +2891,1199 @@ export default function ServiciosView() {
             </Animated.View>
           )}
         </View>
+
+        {/*Multi add servicio */}
+        <Modal
+          transparent={true}
+          visible={isModalAddMultiServicio}
+          animationType="fade"
+          onRequestClose={() => {
+            setIsModalAddMultiServicio(!isModalAddMultiServicio);
+          }}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              zIndex: 5000, // Asegúrate de que el zIndex sea alto
+            }}
+          >
+            <View
+              style={{
+                width: "100%",
+                height: "90%",
+                backgroundColor: Colors.blanco_Suave,
+                borderRadius: 15,
+                alignItems: "center",
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 5,
+              }}
+            >
+              {/* Botón de cerrar en la esquina superior derecha */}
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  backgroundColor: Colors.rojo_oscuro,
+                  borderRadius: 30,
+                  marginRight: "3%",
+                  height: 40,
+                  width: 40,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={() => {
+                  setIsModalAddMultiServicio(!isModalAddMultiServicio);
+                }}
+              >
+                <Text style={{ color: Colors.blanco_Suave }}>X</Text>
+              </TouchableOpacity>
+
+              <View style={styles.separatorNegro} />
+
+              <Text
+                style={{
+                  fontSize: 26,
+                  marginTop: "1%",
+                  color: Colors.negro,
+                  textShadowColor: "rgba(0, 0, 0, 0.5)",
+                  textShadowOffset: { width: 1, height: 1 },
+                  textShadowRadius: 2,
+                }}
+              >
+                {modalEntradasDates?.id_entrada === ""
+                  ? "Crear Venta"
+                  : "Datos de las Ventas"}
+              </Text>
+
+              {/* ScrollView para permitir el desplazamiento del contenido */}
+              <ScrollView
+                style={{ width: "100%" }}
+                contentContainerStyle={{
+                  alignItems: "center",
+                  paddingBottom: 20, // Espacio al final del contenido
+                }}
+              >
+                {/* Nombre del Cliente */}
+                <View
+                  style={{
+                    width: "100%",
+                    zIndex: capaPrioridadClienteDetails,
+                    position: "relative",
+                  }}
+                >
+                  <Text style={styles.labelTextModalDesktop}>
+                    Nombre del Cliente
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    width: "100%",
+                    zIndex: capaPrioridadClienteDetails,
+                    position: "relative",
+                  }}
+                >
+                  <CustomDropdownDetails
+                    value={idClienteMutiDetails}
+                    placeholder="Seleccione un Cliente"
+                    setValue={setIdClienteMultiDetails}
+                    items={dropdownItemsNombreCliente}
+                    searchable={true}
+                    readOnly={
+                      !(isPermisoModificarServicio || isPermisoServicioLocal)
+                    }
+                    onDropdownOpen={() => controlarCapas("ClienteDetails")}
+                  />
+                </View>
+
+                {/* Nombre de la Tienda */}
+                <View
+                  style={{
+                    width: "100%",
+                    zIndex: capaPrioridadTipoServicioDetails,
+                    position: "relative",
+                  }}
+                >
+                  <Text style={styles.labelTextModalDesktop}>
+                    Tienda donde se creará la venta
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    width: "100%",
+                    zIndex: capaPrioridadTipoServicioDetails,
+                    position: "relative",
+                  }}
+                >
+                  <CustomDropdownDetails
+                    value={idTiendaMultiDetails}
+                    placeholder="Seleccione una tienda"
+                    setValue={setIdTiendaMultiDetails}
+                    items={dropdownItemsNombreTienda}
+                    readOnly={
+                      !(isPermisoServicioGeneral &&
+                      modalEntradasDates?.id_entrada === ""
+                        ? true
+                        : isPermisoServicioGeneral &&
+                          isPermisoModificarServicio)
+                    }
+                    searchable={true}
+                    onDropdownOpen={() => controlarCapas("TipoServicioDetails")}
+                  />
+                </View>
+
+                {/* Lista de servicios */}
+                <View
+                  style={{
+                    width: "90%",
+                    zIndex: 500,
+                    position: "relative",
+                    marginTop: "2%",
+                  }}
+                >
+                  {/*Boton para agregar un servicio a la lista */}
+                  <TouchableOpacity
+                    onPress={() => auxSetModalServicioSingleDates()}
+                    style={{
+                      flexDirection: "row",
+                      height: 10,
+                      width: 100,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      shadowColor: Colors.azul_Oscuro, // Color de la sombra
+                      shadowOffset: { width: 0, height: 0 },
+                      shadowOpacity: 0.6, // Ajusta la opacidad para hacer la sombra más difuminada
+                      shadowRadius: 14, // Difuminado
+                      borderColor: Colors.azul_Claro,
+                      borderWidth: 3,
+                      padding: 10,
+                      borderRadius: 10,
+                      marginBottom: "2%",
+                      backgroundColor: Colors.azul_Claro, // Color de fondo del botón
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 20,
+                        color: Colors.blanco,
+                        textShadowColor: "rgba(0, 0, 0, 0.5)",
+                        textShadowOffset: { width: 1, height: 1 },
+                        textShadowRadius: 2,
+                        marginBottom: "10%",
+                      }}
+                    >
+                      +
+                    </Text>
+                  </TouchableOpacity>
+
+                  <View
+                    style={{
+                      width: "100%",
+                      padding: 10,
+                      borderBottomWidth: 1,
+                      borderBottomColor: Colors.gris_claro,
+                      backgroundColor: Colors.gris_claro,
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Producto
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Precio
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Cantidad
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Total
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      ></Text>
+                    </View>
+                  </View>
+                  {multiServiciosItems.length > 0 ? (
+                    <FlatList
+                      data={multiServiciosItems}
+                      renderItem={({ item, index }) => (
+                        <TouchableOpacity
+                          onPress={() => console.log(multiServiciosItems)}
+                        >
+                          <View
+                            style={{
+                              width: "100%",
+                              padding: 10,
+                              borderBottomWidth: 1,
+                              borderBottomColor: Colors.gris_claro,
+                            }}
+                          >
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  fontSize: 12,
+                                  marginTop: "10%",
+                                  color: Colors.negro,
+                                  width: "43%", // Establece un ancho fijo para el nombre del producto
+                                  ellipsizeMode: "tail", // Trunca el texto si es demasiado largo
+                                }}
+                              >
+                                {item.nombreProducto}
+                              </Text>
+                              <Text
+                                style={{
+                                  fontSize: 12,
+                                  marginTop: "10%",
+                                  color: Colors.negro,
+                                  width: "35%", // Establece un ancho fijo para el precio del producto
+                                }}
+                              >
+                                {(item.precioUSDDetails * cambioMoneda).toFixed(
+                                  0
+                                )}
+                              </Text>
+                              <Text
+                                style={{
+                                  fontSize: 12,
+                                  marginTop: "10%",
+                                  color: Colors.negro,
+                                  marginRight: "10%",
+                                  width: "10%", // Establece un ancho fijo para la cantidad del producto
+                                }}
+                              >
+                                {item.cantidadProductoDetails}
+                              </Text>
+                              <Text
+                                style={{
+                                  fontSize: 12,
+                                  marginTop: "10%",
+                                  color: Colors.negro,
+                                  marginRight: "5%",
+                                  width: "10%", // Establece un ancho fijo para el precio del producto
+                                }}
+                              >
+                                {(
+                                  item.precioUSDDetails *
+                                  item.cantidadProductoDetails *
+                                  cambioMoneda
+                                ).toFixed(0)}
+                              </Text>
+                              <TouchableOpacity
+                                style={{
+                                  backgroundColor: "red",
+                                  padding: 10,
+                                  marginTop: "10%",
+                                  borderRadius: 5,
+                                }}
+                                onPress={() => {
+                                  const index = multiServiciosItems.findIndex(
+                                    (item) => item.id === item.id
+                                  );
+                                  if (index !== -1) {
+                                    multiServiciosItems.splice(index, 1);
+                                    setMltiServiciosItems([
+                                      ...multiServiciosItems,
+                                    ]);
+                                  }
+                                }}
+                              >
+                                <Image
+                                  source={require("../images/delete.png")}
+                                  style={{
+                                    width: 15,
+                                    height: 15,
+                                  }}
+                                />
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        </TouchableOpacity>
+                      )}
+                      keyExtractor={(item, index) => index.toString()}
+                    />
+                  ) : (
+                    <Text style={{ fontSize: 12, color: Colors.negro }}></Text>
+                  )}
+                  <View
+                    style={{
+                      width: "100%",
+                      padding: 10,
+                      borderBottomWidth: 1,
+                      borderBottomColor: Colors.gris_claro,
+                      backgroundColor: Colors.gris_claro,
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      ></Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Total Transferencia:{" "}
+                        {multiServiciosItems.reduce(
+                          (total, item) =>
+                            total + parseFloat(item.cantidadTransferencia),
+                          0
+                        )}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Total Efectivo:{" "}
+                        {(
+                          multiServiciosItems.reduce(
+                            (total, item) =>
+                              total +
+                              parseFloat(item.precioUSDDetails) *
+                                parseInt(item.cantidadProductoDetails),
+                            0
+                          ) *
+                            cambioMoneda -
+                          multiServiciosItems.reduce(
+                            (total, item) =>
+                              total + parseFloat(item.cantidadTransferencia),
+                            0
+                          )
+                        ).toFixed(0)}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Total:{" "}
+                        {(
+                          multiServiciosItems.reduce(
+                            (total, item) =>
+                              total +
+                              item.precioUSDDetails *
+                                item.cantidadProductoDetails,
+                            0
+                          ) * cambioMoneda
+                        ).toFixed(0)}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      ></Text>
+                    </View>
+                  </View>
+
+                  {/*Boton para agregar un servicio a la lista */}
+                  <TouchableOpacity
+                    onPress={() => addNewMultiServicio()}
+                    style={{
+                      flexDirection: "row",
+                      height: 15,
+                      width: 210,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      shadowColor: Colors.azul_Oscuro, // Color de la sombra
+                      shadowOffset: { width: 0, height: 0 },
+                      shadowOpacity: 0.6, // Ajusta la opacidad para hacer la sombra más difuminada
+                      shadowRadius: 14, // Difuminado
+                      borderColor: Colors.azul_Claro,
+                      borderWidth: 3,
+                      padding: 10,
+                      borderRadius: 10,
+                      marginTop: "2%",
+                      backgroundColor: Colors.azul_Claro, // Color de fondo del botón
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: Colors.blanco,
+                        textShadowColor: "rgba(0, 0, 0, 0.5)",
+                        textShadowOffset: { width: 1, height: 1 },
+                        textShadowRadius: 2,
+                      }}
+                    >
+                      Agregar Ventas al Sistema
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
+        {/*Modal para agregar multiples servicios de uno en uno  */}
+        <Modal
+          transparent={true}
+          visible={isModalAddMultiServicioSingle}
+          animationType="fade"
+          onRequestClose={auxSetModalServicioSingleDates}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              zIndex: 5000, // Asegúrate de que el zIndex sea alto
+            }}
+          >
+            <View
+              style={{
+                width: "100%",
+                height: "90%",
+                backgroundColor: Colors.blanco_Suave,
+                borderRadius: 15,
+                alignItems: "center",
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 5,
+              }}
+            >
+              {/* Botón de cerrar en la esquina superior derecha */}
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  backgroundColor: Colors.rojo_oscuro,
+                  borderRadius: 30,
+                  marginRight: "3%",
+                  height: 40,
+                  width: 40,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={auxSetModalServicioSingleDates}
+              >
+                <Text style={{ color: Colors.blanco_Suave }}>X</Text>
+              </TouchableOpacity>
+
+              <View style={styles.separatorNegro} />
+
+              <Text
+                style={{
+                  fontSize: 26,
+                  marginTop: "1%",
+                  color: Colors.negro,
+                  textShadowColor: "rgba(0, 0, 0, 0.5)",
+                  textShadowOffset: { width: 1, height: 1 },
+                  textShadowRadius: 2,
+                }}
+              >
+                {"Agregar Venta a la Lista"}
+              </Text>
+
+              {/* ScrollView para permitir el desplazamiento del contenido */}
+              <ScrollView
+                style={{ width: "100%" }}
+                contentContainerStyle={{
+                  alignItems: "center",
+                  paddingBottom: 20, // Espacio al final del contenido
+                }}
+              >
+                <View
+                  style={{
+                    width: "100%",
+                    justifyContent: "space-between", // Para separar los campos de forma uniforme
+                    alignItems: "center",
+                    flexDirection: "row",
+                    paddingHorizontal: 10,
+                    zIndex: 500,
+                  }}
+                >
+                  {/* Garantías */}
+                  <View
+                    style={{
+                      width: "45%",
+                      marginLeft: "2%",
+                      position: "relative",
+                      zIndex: 500,
+                    }}
+                  >
+                    {isEncargoProducto && (
+                      <Text style={styles.labelTextModalDesktop}>
+                        Adelanto del encargo
+                      </Text>
+                    )}
+                    {isEncargoProducto && (
+                      <CustomTextImputSearch
+                        style={styles.textImputModal}
+                        value={adelantoEncargo}
+                        onChangeText={(text) => {
+                          // Permite solo números y un punto decimal
+                          const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                          // Asegura que solo haya un punto decimal
+                          const validNumericValue =
+                            numericValue.split(".").length > 2
+                              ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                              : numericValue;
+                          setAdelantoEncargo(validNumericValue);
+                        }}
+                        cursorColor={Colors.azul_Oscuro}
+                        editable={true}
+                        placeholder="Adelanto del encargo"
+                      />
+                    )}
+
+                    <View style={{ marginTop: "2%" }}>
+                      <Text style={styles.labelTextModalDesktop}>
+                        Cantidad Pagada por Transferencia CUP
+                      </Text>
+                      <CustomTextImputSearch
+                        style={styles.textImputModal}
+                        value={cantidadTransferencia}
+                        onChangeText={(text) => {
+                          // Permite solo números y un punto decimal
+                          const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                          // Asegura que solo haya un punto decimal
+                          const validNumericValue =
+                            numericValue.split(".").length > 2
+                              ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                              : numericValue;
+                          setCantidadTransferencia(validNumericValue);
+                        }}
+                        cursorColor={Colors.azul_Oscuro}
+                        editable={
+                          isPermisoModificarServicio || isPermisoServicioLocal
+                        }
+                        placeholder="Cantidad Pagada por Transferencia CUP"
+                      />
+                    </View>
+                  </View>
+
+                  {/*  */}
+                  <View
+                    style={{
+                      width: "45%",
+                      marginLeft: "2%",
+                      marginRight: "2%",
+                      position: "relative",
+                      zIndex: capaPrioridadTipoServicioDetails,
+                    }}
+                  >
+                    {true && (
+                      <Text style={styles.labelTextModalDesktop}>
+                        Genera Deuda
+                      </Text>
+                    )}
+                    {true && (
+                      <CustomRadioButtonSingle
+                        onPress={() => setIsDeudaDetails(!isDeudaDetails)}
+                        selected={isDeudaDetails}
+                        label="Deuda"
+                      />
+                    )}
+
+                    {isDateLoaded && isEncargoProducto && (
+                      <Text style={styles.labelTextModalDesktop}>
+                        Fecha llegada
+                      </Text>
+                    )}
+                    {isDateLoaded && isEncargoProducto && (
+                      <MyDateInput
+                        dayValue={fechaDiaDetailsEncargo}
+                        monthValue={fechaMesDetailsEncargo}
+                        yearValue={fechaAnnoDetailsEncargo}
+                        onDayChange={setFechaDiaDetailsEncargo}
+                        onMonthChange={setFechaMesDetailsEncargo}
+                        onYearChange={setFechaAnnoDetailsEncargo}
+                        style={{ margin: 20 }}
+                        styleText={styles.labelTextModalDesktop}
+                        onDropdownOpen={() => controlarCapas("FechaDetails")}
+                        isReadOnly={
+                          !(
+                            isPermisoModificarServicio || isPermisoServicioLocal
+                          )
+                        }
+                      />
+                    )}
+
+                    {isDeudaDetails && !isEncargoProducto && (
+                      <View style={{ marginTop: "2%" }}>
+                        <Text style={styles.labelTextModalDesktop}>
+                          Adelanto inicial de la deuda en USD:
+                        </Text>
+                        <CustomTextImputSearch
+                          style={styles.textImputModal}
+                          value={adelantoUSDDeudaDetails}
+                          onChangeText={(text) => {
+                            // Permite solo números y un punto decimal
+                            const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                            // Asegura que solo haya un punto decimal
+                            const validNumericValue =
+                              numericValue.split(".").length > 2
+                                ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                                : numericValue;
+
+                            setAdelantoUSDDeudaDetails(validNumericValue);
+                            const costoCUP =
+                              parseFloat(validNumericValue) * cambioMoneda;
+                            setAdelantoCUPDeudaDetails(costoCUP.toFixed(0));
+                          }}
+                          cursorColor={Colors.azul_Oscuro}
+                          editable={
+                            isPermisoModificarServicio || isPermisoServicioLocal
+                          }
+                          placeholder="Adelanto"
+                        />
+                      </View>
+                    )}
+
+                    {!isEncargoProducto && isDeudaDetails && (
+                      <Text style={styles.labelTextModalDesktop}>
+                        Adelanto inicial de la deuda en CUP:
+                      </Text>
+                    )}
+                    {!isEncargoProducto && isDeudaDetails && (
+                      <CustomTextImputSearch
+                        style={styles.textImputModal}
+                        value={adelantoCUPDeudaDetails}
+                        onChangeText={(text) => {
+                          // Permite solo números y un punto decimal
+                          const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                          // Asegura que solo haya un punto decimal
+                          const validNumericValue =
+                            numericValue.split(".").length > 2
+                              ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                              : numericValue;
+
+                          setAdelantoCUPDeudaDetails(validNumericValue);
+                          const costoUSD =
+                            parseFloat(validNumericValue) / cambioMoneda;
+                          setAdelantoUSDDeudaDetails(costoUSD.toFixed(5));
+                        }}
+                        cursorColor={Colors.azul_Oscuro}
+                        editable={
+                          isPermisoModificarServicio || isPermisoServicioLocal
+                        }
+                        placeholder="Adelanto"
+                      />
+                    )}
+                  </View>
+                </View>
+
+                {isVentaProducto && <View style={styles.separatorNegro} />}
+
+                {/* Nombre Producto */}
+                {isVentaProducto && (
+                  <View
+                    style={{
+                      width: "100%",
+                      zIndex: capaPrioridadProductoDetails,
+                      position: "relative",
+                    }}
+                  >
+                    <Text style={styles.labelTextModalDesktop}>Producto</Text>
+                  </View>
+                )}
+                {isVentaProducto && (
+                  <View
+                    style={{
+                      width: "100%",
+                      zIndex: capaPrioridadProductoDetails,
+                      position: "relative",
+                    }}
+                  >
+                    <CustomDropdownDetails
+                      value={idProductoDetails}
+                      placeholder="Seleccione un produto"
+                      setValue={setIdProductoDetails}
+                      items={dropdownItemsNombreproducto}
+                      searchable={true}
+                      readOnly={
+                        !(isPermisoModificarServicio || isPermisoServicioLocal)
+                      }
+                      onDropdownOpen={() => controlarCapas("ProductoDetails")}
+                    />
+                  </View>
+                )}
+
+                {/* Contenedor para la cantidad y - */}
+                <View
+                  style={{
+                    width: "100%",
+                    justifyContent: "space-between", // Para separar los campos de forma uniforme
+                    alignItems: "center",
+                    flexDirection: "row",
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  {/* Campo USD */}
+                  {isVentaProducto && (
+                    <View style={{ width: "45%", marginLeft: "2%" }}>
+                      <Text style={styles.labelTextModalDesktop}>
+                        Cantidad del Producto
+                      </Text>
+                      <CustomTextImputSearch
+                        style={styles.textImputModal}
+                        cursorColor={Colors.azul_Oscuro}
+                        value={cantidadProductoDetails}
+                        onChangeText={(text) => {
+                          // Filtra caracteres no numéricos
+                          const numericValue = text.replace(/[^0-9]/g, "");
+                          setCantidadProductoDetails(numericValue);
+                        }}
+                        editable={
+                          isPermisoModificarServicio || isPermisoServicioLocal
+                        }
+                        placeholder="Cantidad del producto"
+                      />
+                    </View>
+                  )}
+
+                  {/* Costo */}
+                  {(isVentaProducto ? isPermisoServicioGeneral : true) && (
+                    <View
+                      style={{
+                        width: "45%",
+                        marginLeft: "2%",
+                        marginRight: "2%",
+                      }}
+                    >
+                      <Text style={styles.labelTextModalDesktop}>
+                        {isVentaProducto
+                          ? "Costo promedio del producto"
+                          : "Costo del servicio en USD"}
+                      </Text>
+                      <CustomTextImputSearch
+                        style={styles.textImputModal}
+                        value={`USD: ${costoPromedioProductoUSDDetails}  CUP: ${(
+                          parseFloat(costoPromedioProductoUSDDetails) *
+                          cambioMoneda
+                        ).toFixed(2)}`}
+                        onChangeText={(text) => {
+                          // Permite solo números y un punto decimal
+                          const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                          // Asegura que solo haya un punto decimal
+                          const validNumericValue =
+                            numericValue.split(".").length > 2
+                              ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                              : numericValue;
+
+                          if (validNumericValue !== "") {
+                            setCostoPromedioProductoCUPDetails(
+                              String(
+                                (
+                                  parseFloat(validNumericValue) * cambioMoneda
+                                ).toFixed(0)
+                              )
+                            );
+                          } else {
+                            setCostoPromedioProductoCUPDetails("0");
+                          }
+                          setCostoPromedioProductoUSDDetails(validNumericValue);
+                          setAuxRedondeo("CostoUSD");
+                        }}
+                        cursorColor={Colors.azul_Oscuro}
+                        editable={
+                          parseInt(idTipoServicioDetails) === 2 ||
+                          parseInt(idTipoServicioDetails) === 25
+                            ? false
+                            : isPermisoModificarServicio ||
+                              isPermisoServicioLocal
+                        }
+                        placeholder="Costo Promedio"
+                      />
+                    </View>
+                  )}
+
+                  {!isVentaProducto && (
+                    <View
+                      style={{
+                        width: "45%",
+                        marginLeft: "2%",
+                        marginRight: "2%",
+                      }}
+                    >
+                      <Text style={styles.labelTextModalDesktop}>
+                        Costo del servicio en CUP
+                      </Text>
+                      <CustomTextImputSearch
+                        style={styles.textImputModal}
+                        value={costoPromedioProductoCUPDetails}
+                        onChangeText={(text) => {
+                          // Permite solo números y un punto decimal
+                          const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                          // Asegura que solo haya un punto decimal
+                          const validNumericValue =
+                            numericValue.split(".").length > 2
+                              ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                              : numericValue;
+
+                          if (validNumericValue !== "") {
+                            setCostoPromedioProductoUSDDetails(
+                              String(
+                                parseFloat(validNumericValue) / cambioMoneda
+                              )
+                            );
+                          } else {
+                            setCostoPromedioProductoUSDDetails("0");
+                          }
+                          setCostoPromedioProductoCUPDetails(validNumericValue);
+                          setAuxRedondeo("CostoCUP");
+                        }}
+                        cursorColor={Colors.azul_Oscuro}
+                        editable={
+                          parseInt(idTipoServicioDetails) === 2 ||
+                          parseInt(idTipoServicioDetails) === 25
+                            ? false
+                            : isPermisoModificarServicio ||
+                              isPermisoServicioLocal
+                        }
+                        placeholder="Costo Promedio"
+                      />
+                    </View>
+                  )}
+                </View>
+
+                {/* Contenedor para los precios en USD y CUP */}
+                <View
+                  style={{
+                    width: "100%",
+                    justifyContent: "space-between", // Para separar los campos de forma uniforme
+                    alignItems: "center",
+                    flexDirection: "row",
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  {/* Campo USD */}
+                  <View style={{ width: "45%", marginLeft: "2%" }}>
+                    <Text style={styles.labelTextModalDesktop}>
+                      {isVentaProducto
+                        ? "Precio por unidad en USD"
+                        : "Precio del servicio en USD"}
+                    </Text>
+                    <CustomTextImputSearch
+                      style={styles.textImputModal}
+                      cursorColor={Colors.azul_Oscuro}
+                      value={precioUSDDetails}
+                      onChangeText={(text) => {
+                        // Permite solo números y un punto decimal
+                        const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                        // Asegura que solo haya un punto decimal
+                        const validNumericValue =
+                          numericValue.split(".").length > 2
+                            ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                            : numericValue;
+
+                        if (validNumericValue !== "") {
+                          setPrecioCUPDetails(
+                            String(
+                              (
+                                parseFloat(validNumericValue) * cambioMoneda
+                              ).toFixed(0)
+                            )
+                          );
+                        } else {
+                          setPrecioCUPDetails("0");
+                        }
+                        setPrecioUSDDetails(validNumericValue);
+                        setAuxRedondeo("PrecioUSD");
+                      }}
+                      editable={
+                        isPermisoModificarServicio || isPermisoServicioLocal
+                      }
+                      placeholder="Precio por unidad en usd"
+                    />
+                  </View>
+
+                  {/* Campo CUP */}
+                  <View
+                    style={{
+                      width: "45%",
+                      marginLeft: "2%",
+                      marginRight: "2%",
+                    }}
+                  >
+                    <Text style={styles.labelTextModalDesktop}>
+                      {isVentaProducto
+                        ? "Precio por unidad en CUP"
+                        : "Precio del servicio en CUP"}
+                    </Text>
+                    <CustomTextImputSearch
+                      style={styles.textImputModalNOEDITABLE}
+                      value={precioCUPDetails}
+                      onChangeText={(text) => {
+                        // Permite solo números y un punto decimal
+                        const numericValue = text.replace(/[^0-9.]/g, ""); // Elimina caracteres que no sean dígitos o puntos
+                        // Asegura que solo haya un punto decimal
+                        const validNumericValue =
+                          numericValue.split(".").length > 2
+                            ? numericValue.replace(/\.+$/, "") // Elimina puntos adicionales al final
+                            : numericValue;
+
+                        if (validNumericValue !== "") {
+                          setPrecioUSDDetails(
+                            String(
+                              (
+                                parseFloat(validNumericValue) / cambioMoneda
+                              ).toFixed(5)
+                            )
+                          );
+                        } else {
+                          setPrecioUSDDetails("0");
+                        }
+                        setPrecioCUPDetails(validNumericValue);
+                        setAuxRedondeo("PrecioCUP");
+                      }}
+                      cursorColor={Colors.azul_Oscuro}
+                      editable={
+                        isPermisoModificarServicio || isPermisoServicioLocal
+                      }
+                      placeholder="Precio por unidad en cup"
+                    />
+                  </View>
+                </View>
+
+                {isVentaProducto && (
+                  <View
+                    style={{
+                      width: "100%",
+                      justifyContent: "center", // Para separar los campos de forma uniforme
+                      alignItems: "center",
+                      flexDirection: "row",
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    <Text>{mensajeSumaVenta()}</Text>
+                  </View>
+                )}
+
+                {isVentaProducto && <View style={styles.separatorNegro} />}
+
+                {/* Contenedor para la fecha */}
+                <View
+                  style={{
+                    width: "100%",
+                    justifyContent: "space-between", // Para separar los campos de forma uniforme
+                    alignItems: "center",
+                    flexDirection: "row",
+                    paddingHorizontal: 10,
+                    zIndex: capaPrioridadFechaDetails,
+                  }}
+                >
+                  {/* Campo fecha */}
+                  <View style={{ width: "90%", marginLeft: "2%" }}>
+                    <Text style={styles.labelTextModalDesktop}>Fecha</Text>
+                    {isDateLoaded && (
+                      <MyDateInput
+                        dayValue={fechaDiaDetails}
+                        monthValue={fechaMesDetails}
+                        yearValue={fechaAnnoDetails}
+                        onDayChange={setFechaDiaDetails}
+                        onMonthChange={setFechaMesDetails}
+                        onYearChange={setFechaAnnoDetails}
+                        style={{ margin: 20 }}
+                        styleText={styles.labelTextModalDesktop}
+                        onDropdownOpen={() => controlarCapas("FechaDetails")}
+                        isReadOnly={
+                          !(
+                            isPermisoModificarServicio || isPermisoServicioLocal
+                          )
+                        }
+                      />
+                    )}
+                  </View>
+                </View>
+
+                <View
+                  style={{
+                    width: "100%",
+                    justifyContent: "space-between", // Para separar los campos de forma uniforme
+                    alignItems: "center",
+                    flexDirection: "row",
+                    paddingHorizontal: 10,
+                    zIndex: capaPrioridadFechaDetails,
+                  }}
+                >
+                  {/* Campo fecha */}
+                  <View style={{ width: "90%", marginLeft: "2%" }}>
+                    <Text style={styles.labelTextModalDesktop}>Nota</Text>
+                    <CustomTextImputSearch
+                      style={styles.textImputModal}
+                      cursorColor={Colors.azul_Oscuro}
+                      value={notaDetails}
+                      onChangeText={setNotaDetails}
+                      editable={
+                        isPermisoModificarServicio || isPermisoServicioLocal
+                      }
+                      placeholder="Nota"
+                    />
+                  </View>
+
+                  {/* Campo Nota */}
+                  <View
+                    style={{
+                      width: "45%",
+                      marginLeft: "2%",
+                      marginRight: "2%",
+                      marginTop: "5%",
+                    }}
+                  ></View>
+                </View>
+
+                {/* Descripción */}
+                <Text
+                  style={{
+                    fontSize: 20,
+                    marginTop: "1%",
+                    color: Colors.negro,
+                    textShadowColor: "rgba(0, 0, 0, 0.5)",
+                    textShadowOffset: { width: 1, height: 1 },
+                    textShadowRadius: 2,
+                  }}
+                >
+                  Descripción
+                </Text>
+                <CustomTextImputSearch
+                  style={{
+                    height: 150,
+                    borderColor: Colors.azul_Oscuro,
+                    borderWidth: 1,
+                    shadowColor: Colors.azul_Suave,
+                    shadowOffset: { width: 0, height: 0 },
+                    shadowOpacity: 0.6,
+                    shadowRadius: 14,
+                    width: "90%",
+                    textAlignVertical: "top",
+                    padding: 10,
+                    marginTop: "2%",
+                    marginHorizontal: "5%",
+                    backgroundColor: Colors.blanco_Suave,
+                    borderRadius: 13,
+                    fontSize: 18,
+                    color: Colors.negro,
+                    textShadowColor: "rgba(0, 0, 0, 0.5)",
+                    textShadowOffset: { width: 0.5, height: 0.5 },
+                    textShadowRadius: 2,
+                    fontWeight: "bold",
+                    paddingHorizontal: 10,
+                  }}
+                  cursorColor={Colors.azul_Oscuro}
+                  placeholder="Escribe la descripción del servicio"
+                  multiline={true}
+                  editable={
+                    isPermisoModificarServicio || isPermisoServicioLocal
+                  }
+                  numberOfLines={5}
+                  value={descripcionDetails}
+                  onChangeText={setDescripcionDetails}
+                  scrollEnabled={true}
+                />
+
+                {/*btones para agregar, modificar o elminiar según corresponda */}
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "flex-end",
+                    width: "100%",
+                    justifyContent: "space-between",
+                    marginTop: 20, // Espacio superior adicional
+                  }}
+                >
+                  {/* Botón para agregar proveedor */}
+                  {true && (
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: Colors.azul_Claro,
+                        borderRadius: 15,
+                        width: "30%", // Ancho fijo para pantallas de escritorio
+                        height: 50, // Altura fija para pantallas de escritorio
+                        alignItems: "center",
+                        justifyContent: "center",
+                        shadowColor: "#000",
+                        marginLeft: "5%",
+                        shadowOffset: { width: 3, height: 4 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 5,
+                        marginTop: "3%", // Margen adicional entre botones
+                      }}
+                      onPress={() => addNewMultiServicioToList()}
+                      disabled={isButtonDisabled}
+                    >
+                      <Text
+                        style={{
+                          color: "white",
+                          fontSize: 16,
+                        }}
+                      >
+                        Agregar Venta a la lista
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
+        {/*Agregar un unico servicio */}
         <Modal
           transparent={true}
           visible={modalEntradasDates?.isAddEntrada ?? false}
@@ -3826,7 +5141,7 @@ export default function ServiciosView() {
             marginTop: "10%",
           }}
         >
-          {isPermisoAgregarServicio && false && (
+          {isPermisoAgregarServicio && (
             <TouchableOpacity
               onPress={() =>
                 setIsModalAddMultiServicio(!isModalAddMultiServicio)
@@ -4431,6 +5746,15 @@ export default function ServiciosView() {
                           fontWeight: "bold",
                         }}
                       >
+                        Precio
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      >
                         Cantidad
                       </Text>
                       <Text
@@ -4440,15 +5764,24 @@ export default function ServiciosView() {
                           fontWeight: "bold",
                         }}
                       >
-                        Precio
+                        Total
                       </Text>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      ></Text>
                     </View>
                   </View>
                   {multiServiciosItems.length > 0 ? (
                     <FlatList
                       data={multiServiciosItems}
                       renderItem={({ item, index }) => (
-                        <TouchableOpacity onPress={() => alert(item.id)}>
+                        <TouchableOpacity
+                          onPress={() => console.log(multiServiciosItems)}
+                        >
                           <View
                             style={{
                               width: "100%",
@@ -4467,20 +5800,73 @@ export default function ServiciosView() {
                                 style={{
                                   fontSize: 18,
                                   color: Colors.negro,
+                                  width: "43%", // Establece un ancho fijo para el nombre del producto
+                                  ellipsizeMode: "tail", // Trunca el texto si es demasiado largo
                                 }}
                               >
                                 {item.nombreProducto}
                               </Text>
                               <Text
-                                style={{ fontSize: 16, color: Colors.negro }}
+                                style={{
+                                  fontSize: 16,
+                                  color: Colors.negro,
+                                  width: "35%", // Establece un ancho fijo para el precio del producto
+                                }}
                               >
-                                Cantidad: {item.cantidad}
+                                {(item.precioUSDDetails * cambioMoneda).toFixed(
+                                  0
+                                )}
                               </Text>
                               <Text
-                                style={{ fontSize: 16, color: Colors.negro }}
+                                style={{
+                                  fontSize: 16,
+                                  color: Colors.negro,
+                                  marginRight: "10%",
+                                  width: "10%", // Establece un ancho fijo para la cantidad del producto
+                                }}
                               >
-                                Precio: {item.precio}
+                                {item.cantidadProductoDetails}
                               </Text>
+                              <Text
+                                style={{
+                                  fontSize: 16,
+                                  color: Colors.negro,
+                                  marginRight: "5%",
+                                  width: "10%", // Establece un ancho fijo para el precio del producto
+                                }}
+                              >
+                                {(
+                                  item.precioUSDDetails *
+                                  item.cantidadProductoDetails *
+                                  cambioMoneda
+                                ).toFixed(0)}
+                              </Text>
+                              <TouchableOpacity
+                                style={{
+                                  backgroundColor: "red",
+                                  padding: 10,
+                                  borderRadius: 5,
+                                }}
+                                onPress={() => {
+                                  const index = multiServiciosItems.findIndex(
+                                    (item) => item.id === item.id
+                                  );
+                                  if (index !== -1) {
+                                    multiServiciosItems.splice(index, 1);
+                                    setMltiServiciosItems([
+                                      ...multiServiciosItems,
+                                    ]);
+                                  }
+                                }}
+                              >
+                                <Image
+                                  source={require("../images/delete.png")}
+                                  style={{
+                                    width: 20,
+                                    height: 20,
+                                  }}
+                                />
+                              </TouchableOpacity>
                             </View>
                           </View>
                         </TouchableOpacity>
@@ -4488,9 +5874,7 @@ export default function ServiciosView() {
                       keyExtractor={(item, index) => index.toString()}
                     />
                   ) : (
-                    <Text style={{ fontSize: 18, color: Colors.negro }}>
-                      No hay servicios agregados
-                    </Text>
+                    <Text style={{ fontSize: 18, color: Colors.negro }}></Text>
                   )}
                   <View
                     style={{
@@ -4513,8 +5897,20 @@ export default function ServiciosView() {
                           color: Colors.negro,
                           fontWeight: "bold",
                         }}
+                      ></Text>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
                       >
-                        Producto
+                        Total Transferencia:{" "}
+                        {multiServiciosItems.reduce(
+                          (total, item) =>
+                            total + parseFloat(item.cantidadTransferencia),
+                          0
+                        )}
                       </Text>
                       <Text
                         style={{
@@ -4523,7 +5919,22 @@ export default function ServiciosView() {
                           fontWeight: "bold",
                         }}
                       >
-                        Cantidad
+                        Total Efectivo:{" "}
+                        {(
+                          multiServiciosItems.reduce(
+                            (total, item) =>
+                              total +
+                              parseFloat(item.precioUSDDetails) *
+                                parseInt(item.cantidadProductoDetails),
+                            0
+                          ) *
+                            cambioMoneda -
+                          multiServiciosItems.reduce(
+                            (total, item) =>
+                              total + parseFloat(item.cantidadTransferencia),
+                            0
+                          )
+                        ).toFixed(0)}
                       </Text>
                       <Text
                         style={{
@@ -4532,10 +5943,60 @@ export default function ServiciosView() {
                           fontWeight: "bold",
                         }}
                       >
-                        Precio
+                        Total:{" "}
+                        {(
+                          multiServiciosItems.reduce(
+                            (total, item) =>
+                              total +
+                              item.precioUSDDetails *
+                                item.cantidadProductoDetails,
+                            0
+                          ) * cambioMoneda
+                        ).toFixed(0)}
                       </Text>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: Colors.negro,
+                          fontWeight: "bold",
+                        }}
+                      ></Text>
                     </View>
                   </View>
+
+                  {/*Boton para agregar un servicio a la lista */}
+                  <TouchableOpacity
+                    onPress={() => addNewMultiServicio()}
+                    style={{
+                      flexDirection: "row",
+                      height: 15,
+                      width: 210,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      shadowColor: Colors.azul_Oscuro, // Color de la sombra
+                      shadowOffset: { width: 0, height: 0 },
+                      shadowOpacity: 0.6, // Ajusta la opacidad para hacer la sombra más difuminada
+                      shadowRadius: 14, // Difuminado
+                      borderColor: Colors.azul_Claro,
+                      borderWidth: 3,
+                      padding: 10,
+                      borderRadius: 10,
+                      marginTop: "2%",
+                      backgroundColor: Colors.azul_Claro, // Color de fondo del botón
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: Colors.blanco,
+                        textShadowColor: "rgba(0, 0, 0, 0.5)",
+                        textShadowOffset: { width: 1, height: 1 },
+                        textShadowRadius: 2,
+                      }}
+                    >
+                      Agregar Ventas al Sistema
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </ScrollView>
             </View>
@@ -5217,7 +6678,7 @@ export default function ServiciosView() {
                         shadowRadius: 5,
                         marginTop: "3%", // Margen adicional entre botones
                       }}
-                      onPress={() => addNewMultiServicio()}
+                      onPress={() => addNewMultiServicioToList()}
                       disabled={isButtonDisabled}
                     >
                       <Text

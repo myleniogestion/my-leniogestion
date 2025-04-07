@@ -85,6 +85,8 @@ export default function LoginView() {
 
   // Constantes para controlar el estado del Modal
   const [isModalVisible, setModalVisible] = React.useState(false);
+  const [isModalMesajeVisible, setModalMesajeVisible] = React.useState(false);
+  const [modalMesaje, setModalMesaje] = React.useState("");
 
   // Función para abrir/cerrar el modal
   const toggleModal = () => {
@@ -97,6 +99,9 @@ export default function LoginView() {
 
   // Funciones de servicios con los usuarios
   const iniciarSecion = async () => {
+    setModalMesajeVisible(true);
+    setModalMesaje("Iniciando sesión...");
+
     localStorage.clear();
     if (username.trim() != "" && pasword.trim() != "") {
       const resultUserAuth = await iniciarSecionUser(username, pasword);
@@ -140,6 +145,7 @@ export default function LoginView() {
           await addAccionUsuario(resultUserAuth.data.token, auxAddAccionUsuarioDescripcion, `${year}-${month}-${day}`, resultUserDates.data.id_usuario, 5);
           
           // Navegar
+          setModalMesajeVisible(false);
           navigation.navigate("HomeScreen");
         }
       }else{
@@ -149,6 +155,7 @@ export default function LoginView() {
     } else {
       // Maneja el caso en que la autenticación falla
       setPasword("");
+      setModalMesajeVisible(false);
       toggleModal();
     }
     }else{
@@ -260,6 +267,7 @@ export default function LoginView() {
               width: "100%",
             }}
           >
+
             <Modal
               transparent={true}
               visible={isModalVisible}
@@ -306,6 +314,31 @@ export default function LoginView() {
                 </View>
               </View>
             </Modal>
+
+            <Modal
+              transparent={true}
+              visible={isModalMesajeVisible}
+              animationType="fade"
+              onRequestClose={toggleModal}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)", // Fondo semi-transparente
+                }}
+              >
+                <View
+                  style={isMobile? styles.modalViewMesajeContainerMovil : styles.modalViewMesajeContainerDesktop}
+                >
+                  <Text style={styles.labelTextDesktop}>
+                    {modalMesaje}
+                  </Text>
+                </View>
+              </View>
+            </Modal>
+
           </View>
         </View>
       </LinearGradient>

@@ -1,7 +1,7 @@
 const axios = require("axios");
 
-const host = "https://my-leniogestionbackend-w5gc.onrender.com";
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjoxLCJub21icmUiOiJEYXZpZCBRdWludGFuYSIsImlhdCI6MTc0MzUzMjE2MCwiZXhwIjoxNzQzNTUwMTYwfQ.nLX7NzUugBLNPTvlqDMGVOG8_E-33rPzEwiyiM_OUaM";
+const host = "http://localhost:3000";
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjozMiwibm9tYnJlIjoiRGF2aWQiLCJpYXQiOjE3NDM5OTk1NTQsImV4cCI6MTc0NDAxNzU1NH0.69z3A-Nfo3vqA1za6ukTX2QoogV21kTGVryZD5nWhfE";
 
 // Obtener todos los productos
 const getAllProductos = async (token) => {

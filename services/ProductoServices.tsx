@@ -253,6 +253,27 @@ export const getProductoBySku = async (token: string, sku: string) => {
   }
 };
 
+// Machear datos de un producto en una tienda especifica
+export const matchProductoInTienda = async (token: string, id_producto: string, id_tienda: string) => {
+  try {
+    const response = await axios.get(
+      `${cerverHost}/Producto/match/${id_producto}/${id_tienda}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      navigate("Login")
+    }
+    console.log("Error al machear el producto: ", error);
+    return false;
+  }
+};
+
 // Agregar entradas a un producto especifico
 export const addProductoEntrada = async (
   token: string,
