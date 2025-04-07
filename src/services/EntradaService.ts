@@ -244,6 +244,7 @@ export class EntradaService extends BaseService<Entrada> {
       .createQueryBuilder("e")
       .leftJoinAndSelect("e.producto", "p")
       .leftJoinAndSelect("e.proveedor", "prov")
+      .leftJoinAndSelect("e.tienda", "t")
       .where("p.id_producto=:id_producto", { id_producto })
       .getMany();
   }

@@ -44,11 +44,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductoController = void 0;
 const ProductoService_1 = require("../services/ProductoService");
+const TiendaService_1 = require("../services/TiendaService");
 const Ordenar_criterios_1 = require("../helpers/Ordenar_criterios");
 const XLSX = __importStar(require("xlsx"));
 class ProductoController {
-    constructor(productoService = new ProductoService_1.ProductoService()) {
+    constructor(productoService = new ProductoService_1.ProductoService(), tiendaService = new TiendaService_1.TiendaService()) {
         this.productoService = productoService;
+        this.tiendaService = tiendaService;
     }
     createProducto(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -57,7 +59,7 @@ class ProductoController {
                 res.status(200).json(data);
             }
             catch (e) {
-                res.status(500).json({ "error": e.message });
+                res.status(500).json({ error: e.message });
             }
         });
     }
@@ -68,7 +70,7 @@ class ProductoController {
                 res.status(200).json(data);
             }
             catch (e) {
-                res.status(500).json({ "error": e.message });
+                res.status(500).json({ error: e.message });
             }
         });
     }
@@ -83,7 +85,7 @@ class ProductoController {
                     res.status(404).json();
             }
             catch (e) {
-                res.status(500).json({ "error": e.message });
+                res.status(500).json({ error: e.message });
             }
         });
     }
@@ -95,7 +97,7 @@ class ProductoController {
                 res.status(200).json(data);
             }
             catch (e) {
-                res.status(500).json({ "error": e.message });
+                res.status(500).json({ error: e.message });
             }
         });
     }
@@ -107,7 +109,7 @@ class ProductoController {
                 res.status(200).json(data);
             }
             catch (e) {
-                res.status(500).json({ "error": e.message });
+                res.status(500).json({ error: e.message });
             }
         });
     }
@@ -123,7 +125,7 @@ class ProductoController {
                     res.status(404).json("No encontraron las fotos");
             }
             catch (e) {
-                res.status(500).json({ "error": e.message });
+                res.status(500).json({ error: e.message });
             }
         });
     }
@@ -148,12 +150,14 @@ class ProductoController {
         return __awaiter(this, void 0, void 0, function* () {
             let { items, criterio, ascendente } = req.body;
             try {
-                console.log(typeof (ascendente));
+                console.log(typeof ascendente);
                 const data = yield (0, Ordenar_criterios_1.OrdenarProducto)(ascendente, items, criterio);
-                (data) ? res.status(200).json(data) : res.status(404).json("no se puede ordenar");
+                data
+                    ? res.status(200).json(data)
+                    : res.status(404).json("no se puede ordenar");
             }
             catch (error) {
-                res.status(500).json({ "error": error.message });
+                res.status(500).json({ error: error.message });
             }
         });
     }
@@ -162,10 +166,12 @@ class ProductoController {
             const { id_tienda, id_producto } = req.body;
             try {
                 const data = yield this.productoService.agregarTienda(parseInt(id_producto), parseInt(id_tienda));
-                (data) ? res.status(200).json(data) : res.status(404).json("Producto no encontrado");
+                data
+                    ? res.status(200).json(data)
+                    : res.status(404).json("Producto no encontrado");
             }
             catch (error) {
-                res.status(500).json({ "error": error.message });
+                res.status(500).json({ error: error.message });
             }
         });
     }
@@ -176,7 +182,7 @@ class ProductoController {
                 res.status(200).json(true);
             }
             catch (error) {
-                res.status(500).json({ "error": error.message });
+                res.status(500).json({ error: error.message });
             }
         });
     }
@@ -186,16 +192,19 @@ class ProductoController {
             try {
                 const worksheet = XLSX.utils.json_to_sheet(productos);
                 const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, 'Productos');
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Productos");
                 const date = new Date();
                 const str = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-                const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-                res.setHeader('Content-Disposition', `attachment; filename=productos-${str}.xlsx`);
-                res.setHeader('Content-Type', 'application/octet-stream');
+                const excelBuffer = XLSX.write(workbook, {
+                    type: "buffer",
+                    bookType: "xlsx",
+                });
+                res.setHeader("Content-Disposition", `attachment; filename=productos-${str}.xlsx`);
+                res.setHeader("Content-Type", "application/octet-stream");
                 res.send(excelBuffer);
             }
             catch (error) {
-                res.status(500).json({ "error": error.message });
+                res.status(500).json({ error: error.message });
             }
         });
     }
@@ -207,9 +216,8 @@ class ProductoController {
                 res.status(200).json(data);
             }
             catch (error) {
-                res.status(500).json({ "error": error.message });
+                res.status(500).json({ error: error.message });
             }
-            ;
         });
     }
     findbySku(req, res) {
@@ -217,10 +225,12 @@ class ProductoController {
             const { sku } = req.params;
             try {
                 const data = yield this.productoService.findbySku(sku);
-                (data) ? res.status(200).json(data) : res.status(404).json("No se encontro");
+                data
+                    ? res.status(200).json(data)
+                    : res.status(404).json("No se encontro");
             }
             catch (error) {
-                res.status(500).json({ "error": error.message });
+                res.status(500).json({ error: error.message });
             }
         });
     }
@@ -229,10 +239,12 @@ class ProductoController {
             const { page } = req.params;
             try {
                 const data = yield this.productoService.getAllPaginated(parseInt(page));
-                (data) ? res.status(200).json(data) : res.status(404).json("Data not found");
+                data
+                    ? res.status(200).json(data)
+                    : res.status(404).json("Data not found");
             }
             catch (error) {
-                res.status(500).json({ "error": error.message });
+                res.status(500).json({ error: error.message });
             }
         });
     }
@@ -241,18 +253,44 @@ class ProductoController {
             const { productos, columns } = req.body;
             try {
                 // Crear una hoja de trabajo desde productos y aplicar las columnas
-                const worksheet = XLSX.utils.json_to_sheet(productos, { header: columns });
+                const worksheet = XLSX.utils.json_to_sheet(productos, {
+                    header: columns,
+                });
                 const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, 'Productos');
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Productos");
                 const date = new Date();
                 const str = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-                const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-                res.setHeader('Content-Disposition', `attachment; filename=productos-${str}.xlsx`);
-                res.setHeader('Content-Type', 'application/octet-stream');
+                const excelBuffer = XLSX.write(workbook, {
+                    type: "buffer",
+                    bookType: "xlsx",
+                });
+                res.setHeader("Content-Disposition", `attachment; filename=productos-${str}.xlsx`);
+                res.setHeader("Content-Type", "application/octet-stream");
                 res.send(excelBuffer);
             }
             catch (error) {
-                res.status(500).json({ "error": error.message });
+                res.status(500).json({ error: error.message });
+            }
+        });
+    }
+    machearProducto(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { producto, tienda } = req.params;
+            try {
+                const productoExistente = yield this.productoService.findProductoById(parseInt(producto));
+                console.log(productoExistente);
+                const tiendaExistente = yield this.tiendaService.findTiendaById(parseInt(tienda));
+                console.log(tiendaExistente);
+                if (!productoExistente || !tiendaExistente) {
+                    res.status(404).json({ error: "Producto o tienda no encontrados" });
+                    return;
+                }
+                // Si ambos existen, puedes realizar la lógica para "machear" el producto y la tienda
+                // Aquí puedes agregar la lógica que necesites
+                res.status(200).json({ message: "Producto y tienda encontrados" });
+            }
+            catch (error) {
+                res.status(500).json({ error: error.message });
             }
         });
     }

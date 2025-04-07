@@ -28,6 +28,7 @@ class ProductoRouter extends router_1.BaseRouter {
         this.router.get("/Producto/getSku/:sku", [jwt_config_1.verifyToken], (req, res) => this.controller.findbySku(req, res));
         this.router.get("/Producto/getPaginated/:page", [jwt_config_1.verifyToken], (req, res) => this.controller.getAllPaginated(req, res));
         this.router.post("/Producto/to/excelwithcolumns", [jwt_config_1.verifyToken], (req, res) => this.controller.HacerExcelwithColumns(req, res));
+        this.router.post("/Producto/match/:producto/:tienda", [jwt_config_1.verifyToken], (req, res) => this.controller.machearProducto(req, res));
     }
 }
 exports.ProductoRouter = ProductoRouter;

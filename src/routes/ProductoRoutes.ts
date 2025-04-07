@@ -42,6 +42,7 @@ this.router.get("/Producto/getPaginated/:page",[verifyToken],(req:Request,res:Re
 
 this.router.post("/Producto/to/excelwithcolumns",[verifyToken],(req:Request,res:Response)=>this.controller.HacerExcelwithColumns(req,res));
 
+this.router.get("/Producto/match/:producto/:tienda",[verifyToken],(req:Request,res:Response)=>this.controller.machearProducto(req,res));
 
 }
 
