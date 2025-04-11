@@ -37,6 +37,7 @@ import ClientesView from "./Views/ClientesView";
 import { SortClientesProvider } from "./contexts/AuxiliarSortClientes";
 import GarantiasView from "./Views/GarantiasView";
 import DeudasView from "./Views/DeudasView";
+import DiarioView from "./Views/DiarioView";
 
 // Importar la referencia de navegación global
 import { navigationRef } from "./contexts/navigationRef";
@@ -60,6 +61,7 @@ export type RootStackParamList = {
   ClientesView: undefined;
   Garantias: undefined;
   DeudasView: undefined;
+  Diario: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -156,6 +158,10 @@ function App() {
                                           <Stack.Screen
                                             name="Deudas"
                                             component={DeudasView}
+                                          />
+                                          <Stack.Screen
+                                            name="Diario"
+                                            component={DiarioView}
                                           />
                                         </Stack.Navigator>
                                       </NavigationContainer>

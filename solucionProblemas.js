@@ -1,7 +1,7 @@
 const axios = require("axios");
 
-const host = "http://localhost:3000";
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjozMiwibm9tYnJlIjoiRGF2aWQiLCJpYXQiOjE3NDM5OTk1NTQsImV4cCI6MTc0NDAxNzU1NH0.69z3A-Nfo3vqA1za6ukTX2QoogV21kTGVryZD5nWhfE";
+const host = "http://31.170.165.44:3000";
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjoxLCJub21icmUiOiJEYXZpZCBRdWludGFuYSIsImlhdCI6MTc0NDI4NzU5MCwiZXhwIjoxNzQ0MzA1NTkwfQ.RiRiXSRt2KocNy7H4FbB8c9g0UTnne9PhcAzpNMJMi4";
 
 // Obtener todos los productos
 const getAllProductos = async (token) => {
@@ -147,6 +147,7 @@ const getAllMovimientos = async (token) => {
 (async () => {
     console.log("Obteniendo productos");
     const resultAllProductos = await getAllProductos(token)
+    console.log("Obteniendo movimientos");
     const resultMovimientos = await getAllMovimientos(token)
 
     if (resultAllProductos && Array.isArray(resultAllProductos)) {

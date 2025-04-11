@@ -3742,12 +3742,7 @@ export default function ServiciosView() {
                         }}
                         cursorColor={Colors.azul_Oscuro}
                         editable={
-                          parseInt(idTipoServicioDetails) === 2 ||
-                          parseInt(idTipoServicioDetails) === 25
-                            ? false
-                            : isPermisoModificarServicio ||
-                              isPermisoServicioLocal
-                        }
+                          parseInt(idTipoServicioDetails) === 2 ||parseInt(idTipoServicioDetails) === 25? ((parseInt(usuario?.id_usuario) === 1 || parseInt(usuario?.id_usuario) === 2)? true : false): isPermisoModificarServicio ||isPermisoServicioLocal}
                         placeholder="Costo Promedio"
                       />
                     </View>
@@ -4562,12 +4557,7 @@ export default function ServiciosView() {
                         }}
                         cursorColor={Colors.azul_Oscuro}
                         editable={
-                          parseInt(idTipoServicioDetails) === 2 ||
-                          parseInt(idTipoServicioDetails) === 25
-                            ? false
-                            : isPermisoModificarServicio ||
-                              isPermisoServicioLocal
-                        }
+                          parseInt(idTipoServicioDetails) === 2 ||parseInt(idTipoServicioDetails) === 25? ((parseInt(usuario?.id_usuario) === 1 || parseInt(usuario?.id_usuario) === 2)? true : false): isPermisoModificarServicio ||isPermisoServicioLocal}
                         placeholder="Costo Promedio"
                       />
                     </View>
@@ -6370,12 +6360,7 @@ export default function ServiciosView() {
                         }}
                         cursorColor={Colors.azul_Oscuro}
                         editable={
-                          parseInt(idTipoServicioDetails) === 2 ||
-                          parseInt(idTipoServicioDetails) === 25
-                            ? false
-                            : isPermisoModificarServicio ||
-                              isPermisoServicioLocal
-                        }
+                          parseInt(idTipoServicioDetails) === 2 ||parseInt(idTipoServicioDetails) === 25? ((parseInt(usuario?.id_usuario) === 1 || parseInt(usuario?.id_usuario) === 2)? true : false): isPermisoModificarServicio ||isPermisoServicioLocal}
                         placeholder="Costo Promedio"
                       />
                     </View>
@@ -7171,12 +7156,7 @@ export default function ServiciosView() {
                         }}
                         cursorColor={Colors.azul_Oscuro}
                         editable={
-                          parseInt(idTipoServicioDetails) === 2 ||
-                          parseInt(idTipoServicioDetails) === 25
-                            ? false
-                            : isPermisoModificarServicio ||
-                              isPermisoServicioLocal
-                        }
+                          parseInt(idTipoServicioDetails) === 2 ||parseInt(idTipoServicioDetails) === 25? ((parseInt(usuario?.id_usuario) === 1 || parseInt(usuario?.id_usuario) === 2)? true : false): isPermisoModificarServicio ||isPermisoServicioLocal}
                         placeholder="Costo Promedio"
                       />
                     </View>
