@@ -406,7 +406,9 @@ const Navbar = () => {
             />
           )}
           {(parseInt(usuario?.id_rol) === 1 ||
-            parseInt(usuario?.id_rol) === 2) && (
+            parseInt(usuario?.id_rol) === 2 ||
+            parseInt(usuario?.id_rol) === 3
+          ) && (
             <CustomButtonNavbar
               imageSource={require("../images/Deudas.png")}
               text={"Deudas"}

@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 const host = "http://31.170.165.44:3000";
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjoxLCJub21icmUiOiJEYXZpZCBRdWludGFuYSIsImlhdCI6MTc0NDI4NzU5MCwiZXhwIjoxNzQ0MzA1NTkwfQ.RiRiXSRt2KocNy7H4FbB8c9g0UTnne9PhcAzpNMJMi4";
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjoxLCJub21icmUiOiJEYXZpZCBRdWludGFuYSIsImlhdCI6MTc0NDUyNzk2OSwiZXhwIjoxNzQ0NTQ1OTY5fQ.Ta2ASxPba2NZaHkqH1COsGB6DOhou-UnhtBxSjn8WR8";
 
 // Obtener todos los productos
 const getAllProductos = async (token) => {
@@ -147,8 +147,16 @@ const getAllMovimientos = async (token) => {
 (async () => {
     console.log("Obteniendo productos");
     const resultAllProductos = await getAllProductos(token)
+    if (!resultAllProductos) {
+        console.log("Fallo en obtener productos");
+        return
+    }
     console.log("Obteniendo movimientos");
     const resultMovimientos = await getAllMovimientos(token)
+    if (!resultMovimientos) {
+        console.log("Fallo en obtener movimientos");
+        return
+    }
 
     if (resultAllProductos && Array.isArray(resultAllProductos)) {
         for (let producto of resultAllProductos) {
@@ -205,7 +213,7 @@ const getAllMovimientos = async (token) => {
                         console.log("  Existencia: ",productoTienda.cantidad);
 			console.log("  Dede tener -> ", (sumaCantEntradas + sumaCantMovi - sumaCantVentas));
 
-                        //await updateProductoTienda(token, productoTienda.producto.id_producto, productoTienda.tienda.id_tienda, (sumaCantEntradas + sumaCantMovi - sumaCantVentas))
+                        await updateProductoTienda(token, productoTienda.producto.id_producto, productoTienda.tienda.id_tienda, (sumaCantEntradas + sumaCantMovi - sumaCantVentas))
                     }
                     sumaCantEntradas = 0
                     sumaCantMovi = 0

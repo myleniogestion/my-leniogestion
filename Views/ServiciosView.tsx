@@ -1403,7 +1403,7 @@ export default function ServiciosView() {
           const year = String(currentDate.getFullYear());
           const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
           const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
-          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} agregó un servicio del tipo de servicio ${nombreTipoServicio?.label} al cliente ${nombreCliente?.label}. Se vendió una cantidad de ${cantidadProductoDetails} del producto ${nombreProducto?.label} a un precio de ${precioUSDDetails} USD`;
+          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} agregó un servicio del tipo de servicio ${nombreTipoServicio?.label} al cliente ${nombreCliente?.label}. Se vendió una cantidad de ${cantidadProductoDetails} del producto ${nombreProducto?.label} a un precio de ${(parseFloat(precioUSDDetails) * cambioMoneda).toFixed(0)} CUP`;
           await addAccionUsuario(
             usuario.token,
             auxAddAccionUsuarioDescripcion,
@@ -1846,7 +1846,7 @@ export default function ServiciosView() {
           const year = String(currentDate.getFullYear());
           const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
           const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
-          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} agregó un servicio del tipo de servicio ${nombreTipoServicio?.label} al cliente ${nombreCliente?.label}. Se vendió una cantidad de ${cantidadProductoDetails} del producto ${nombreProducto?.label} a un precio de ${precioUSDDetails} USD`;
+          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} agregó un servicio del tipo de servicio ${nombreTipoServicio?.label} al cliente ${nombreCliente?.label}. Se vendió una cantidad de ${cantidadProductoDetails} del producto ${nombreProducto?.label} a un precio de ${(parseFloat(precioUSDDetails) * cambioMoneda).toFixed(0)} CUP`;
           await addAccionUsuario(
             usuario.token,
             auxAddAccionUsuarioDescripcion,
@@ -1878,7 +1878,7 @@ export default function ServiciosView() {
           const year = String(currentDate.getFullYear());
           const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
           const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
-          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} agregó un servicio del tipo de servicio ${nombreTipoServicio?.label} a un precio de ${precioUSDDetails} USD al cliente ${nombreCliente?.label}`;
+          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} agregó un servicio del tipo de servicio ${nombreTipoServicio?.label} a un precio de ${(parseFloat(precioUSDDetails) * cambioMoneda).toFixed(0)} USD al cliente ${nombreCliente?.label}`;
           await addAccionUsuario(
             usuario.token,
             auxAddAccionUsuarioDescripcion,
@@ -2263,7 +2263,7 @@ export default function ServiciosView() {
         const year = String(currentDate.getFullYear());
         const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
         const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
-        let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} modificó una entrada de originalmente ${cantidadAuxModificarDetails} del producto ${nombreProducto?.label} en la tienda ${nombreTienda?.label}`;
+        let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} modificó un servicio de originalmente ${cantidadAuxModificarDetails} del producto ${nombreProducto?.label} en la tienda ${nombreTienda?.label}`;
         await addAccionUsuario(
           usuario.token,
           auxAddAccionUsuarioDescripcion,
@@ -2366,7 +2366,7 @@ export default function ServiciosView() {
           const year = String(currentDate.getFullYear());
           const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
           const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
-          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} eliminó la el servicio de venta de la tienda ${resultServicio.tienda.nombre}. La venta eliminada fue del producto ${nombreClienteSearch}, se sumo una canidad de ${resultventa.cantidad} nuevamente en la tienda cuyo producto valía ${resultventa.precio} y se vendió una cantidad de ${resultventa.cantidad}.`;
+          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} eliminó la el servicio de venta de la tienda ${resultServicio.tienda.nombre}. La venta eliminada fue del producto ${nombreClienteSearch}, se sumo una canidad de ${resultventa.cantidad} nuevamente en la tienda cuyo producto valía ${(resultventa.precio * cambioMoneda).toFixed(0)} y se vendió una cantidad de ${resultventa.cantidad}.`;
           await addAccionUsuario(
             usuario.token,
             auxAddAccionUsuarioDescripcion,
@@ -2379,7 +2379,7 @@ export default function ServiciosView() {
           const year = String(currentDate.getFullYear());
           const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Los meses comienzan desde 0, por lo que sumamos 1
           const day = String(currentDate.getDate()).padStart(2, "0"); // Aseguramos que siempre haya dos dígitos
-          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} eliminó la un servicio de la tienda ${resultServicio.tienda.nombre} por el cual se había cobrado ${resultServicio.precio} y tenía un costo de ${resultServicio.costo}`;
+          let auxAddAccionUsuarioDescripcion: string = `El usuario ${usuario.nombre} eliminó la un servicio de la tienda ${resultServicio.tienda.nombre} por el cual se había cobrado ${(resultServicio.precio * cambioMoneda).toFixed(0)} y tenía un costo de ${resultServicio.costo}`;
           await addAccionUsuario(
             usuario.token,
             auxAddAccionUsuarioDescripcion,
