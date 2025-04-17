@@ -1150,6 +1150,9 @@ export default function ServiciosView() {
     setIdTiendaDetails(usuario?.id_tienda);
     setIdTipoServicioDetails("");
     setIdClienteDetails("");
+    setIdProductoDetails("");
+    setIdProductoAuxModificarDetails("");
+    setIdProductoDetailsViejo("");
     setPrecioUSDDetails("");
     setPrecioCUPDetails("");
     setCantidadProductoDetails("");
