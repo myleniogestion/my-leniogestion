@@ -172,7 +172,7 @@ const Navbar = () => {
             image: require("../images/Tipo_Servicio.png"),
           });
         }
-        if (parseInt(usuario.id_rol) === 1) {
+        if (parseInt(usuario.id_rol) === 1 && false) {
           newOptions.push({
             label: "Cambiar  moneda",
             value: "6",
