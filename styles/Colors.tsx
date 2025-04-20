@@ -1,9 +1,9 @@
 export const Colors = {
      negro: "#000000",
      blanco: "#ffffff",
-     azul_Claro: "#349270",
-     azul_Oscuro: "#17593d",
-     azul_Suave: "#5cbe9a",
+     azul_Claro: "#50cbcf",
+     azul_Oscuro: "#429b9e",
+     azul_Suave: "#88e8ec",
      blanco_Suave: "#F2F2F2",
      gris_claro: "#D3D3D3",
      rojo_oscuro: "#cd1111",

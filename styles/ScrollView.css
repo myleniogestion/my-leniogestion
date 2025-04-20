@@ -5,17 +5,17 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #5cbe9a; /* Color de fondo del track*/
+  background: #88e8ec; /* Color de fondo del track*/
   margin-bottom: 10px; /* Separa la barra hacia abajo */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #349270; /* Color del thumb (parte que se desplaza) */
+  background: #5ce1e6; /* Color del thumb (parte que se desplaza) */
   border-radius: 10px; /* Bordes redondeados del thumb */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #17593d; /* Color del thumb al pasar el mouse */
+  background: #3e9194; /* Color del thumb al pasar el mouse */
 }
 
 
