@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.41aa91d7.css",
-    "main.js": "/static/js/main.e745f46e.js",
+    "main.js": "/static/js/main.a08b1f30.js",
     "static/js/192.3750b6cc.js": "/static/js/192.3750b6cc.js",
     "static/media/logo.png": "/static/media/logo.53875f5d5d842ab91fb5.png",
     "static/media/solutel1.jpg": "/static/media/solutel1.1fe889a62eabe066164c.jpg",
@@ -9,7 +9,6 @@
     "static/media/moving.png": "/static/media/moving.e516858414307ef98a2b.png",
     "static/media/candelado.png": "/static/media/candelado.0fed6d34cc2a57874424.png",
     "static/media/acción.png": "/static/media/acción.8a5f93e7886d0150a1ac.png",
-    "static/media/Cambio_moneda.png": "/static/media/Cambio_moneda.fe68f2723918842a6145.png",
     "static/media/usuarios.png": "/static/media/usuarios.f252714e052e0e6c14eb.png",
     "static/media/aprobado.png": "/static/media/aprobado.34b906a81acc87007bb5.png",
     "static/media/public-service.png": "/static/media/public-service.c7c31e37c7a4b3e6be0a.png",
@@ -41,12 +40,12 @@
     "manifest.json": "/manifest.json",
     "serve.json": "/serve.json",
     "main.41aa91d7.css.map": "/static/css/main.41aa91d7.css.map",
-    "main.e745f46e.js.map": "/static/js/main.e745f46e.js.map",
+    "main.a08b1f30.js.map": "/static/js/main.a08b1f30.js.map",
     "192.3750b6cc.js.map": "/static/js/192.3750b6cc.js.map"
   },
   "entrypoints": [
     "static/js/192.3750b6cc.js",
     "static/css/main.41aa91d7.css",
-    "static/js/main.e745f46e.js"
+    "static/js/main.a08b1f30.js"
   ]
 }
