@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 const host = "http://31.170.165.44:3000";
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjoxLCJub21icmUiOiJEYXZpZCBRdWludGFuYSIsImlhdCI6MTc0NDgzMTA5OCwiZXhwIjoxNzQ0ODQ5MDk4fQ.rHobHyJZSDbkfTmlx79hi7-DitAGKdebYzdMl85_Sm8";
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjoxLCJub21icmUiOiJEYXZpZCBRdWludGFuYSIsImlhdCI6MTc0NTU1MjIwNiwiZXhwIjoxNzQ1NTcwMjA2fQ.b8IT2NwHGf-LIH4AEMiUwVFyqHovpnQu2uyUCV0EdTk";
 
 // Obtener todos los productos
 const getAllProductos = async (token) => {

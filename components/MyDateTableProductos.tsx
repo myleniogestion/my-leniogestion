@@ -372,7 +372,8 @@ export const MyDateTableProductos: React.FC<Props> = ({
   const resultadoCondicionalOpcionesDeCelda = (item: Producto) => {
     if (usuario?.id_rol) {
       return (usuario.id_rol == "1" && isPermisoOpcionesDeCelda) ||
-        (usuario.id_rol == "2" && isPermisoOpcionesDeCelda)
+        (usuario.id_rol == "2" && isPermisoOpcionesDeCelda) ||
+        (usuario.id_rol == "3" && isPermisoOpcionesDeCelda)
         ? true
         : item.tieneOpciones && isPermisoOpcionesDeCelda
         ? true

@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.89b8a011.css",
-    "main.js": "/static/js/main.302a2738.js",
+    "main.js": "/static/js/main.4ed9d08d.js",
     "static/js/192.3750b6cc.js": "/static/js/192.3750b6cc.js",
     "static/media/logo.png": "/static/media/logo.d6ffc17e2dcae3c82659.png",
     "static/media/solutel1.jpg": "/static/media/solutel1.1fe889a62eabe066164c.jpg",
@@ -40,12 +40,12 @@
     "manifest.json": "/manifest.json",
     "serve.json": "/serve.json",
     "main.89b8a011.css.map": "/static/css/main.89b8a011.css.map",
-    "main.302a2738.js.map": "/static/js/main.302a2738.js.map",
+    "main.4ed9d08d.js.map": "/static/js/main.4ed9d08d.js.map",
     "192.3750b6cc.js.map": "/static/js/192.3750b6cc.js.map"
   },
   "entrypoints": [
     "static/js/192.3750b6cc.js",
     "static/css/main.89b8a011.css",
-    "static/js/main.302a2738.js"
+    "static/js/main.4ed9d08d.js"
   ]
 }
