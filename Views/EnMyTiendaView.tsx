@@ -1130,9 +1130,9 @@ export default function EnMyTiendaView() {
       // Actualiza el estado con los resultados
       setIsPermisoOpcionesDeCelda(
         Boolean(localStorage.getItem("resultPermisoButonOptionEliminar")) ||
-          Boolean(localStorage.getItem("resultPermisoButonOptionModificar")) ||
-          Boolean(localStorage.getItem("resultPermisoButonOptionMoverLocal")) ||
-          Boolean(localStorage.getItem("resultPermisoButonOptionMoverGeneral"))
+        Boolean(localStorage.getItem("resultPermisoButonOptionModificar")) ||
+        Boolean(localStorage.getItem("resultPermisoButonOptionMoverLocal")) ||
+        Boolean(localStorage.getItem("resultPermisoButonOptionMoverGeneral"))
       );
     }
   };
@@ -1607,8 +1607,8 @@ export default function EnMyTiendaView() {
               style={[
                 styles.radioButtonTextDesktop,
                 sortProductos?.criterioOrden === "option1" &&
-                  styles.radioButtonSelected &&
-                  styles.radioButtonTextSelected,
+                styles.radioButtonSelected &&
+                styles.radioButtonTextSelected,
               ]}
             >
               Exportar a Excel
@@ -1762,29 +1762,32 @@ export default function EnMyTiendaView() {
                   </View>
 
                   {(String(usuario?.id_rol) === "2" ||
-                    String(usuario?.id_rol) === "1") && (
-                    <View style={styles.separatorBlanco} />
-                  )}
+                    String(usuario?.id_rol) === "1" ||
+                    String(usuario?.id_rol) === "3") && (
+                      <View style={styles.separatorBlanco} />
+                    )}
 
                   {(String(usuario?.id_rol) === "2" ||
-                    String(usuario?.id_rol) === "1") && (
-                    <Text style={styles.textSearchMovil}>
-                      Cambiar de Tienda:
-                    </Text>
-                  )}
+                    String(usuario?.id_rol) === "1" ||
+                    String(usuario?.id_rol) === "3") && (
+                      <Text style={styles.textSearchMovil}>
+                        Cambiar de Tienda:
+                      </Text>
+                    )}
                   {(String(usuario?.id_rol) === "2" ||
-                    String(usuario?.id_rol) === "1") && (
-                    <View
-                      style={{ position: "relative", zIndex: 500, height: 100 }}
-                    >
-                      <CustomDropdown
-                        value={selectedValueNombreTienda}
-                        placeholder="Tiendas"
-                        setValue={setSelectedValueNombreTienda}
-                        items={dropdownItems}
-                      />
-                    </View>
-                  )}
+                    String(usuario?.id_rol) === "1" ||
+                    String(usuario?.id_rol) === "3") && (
+                      <View
+                        style={{ position: "relative", zIndex: 500, height: 100 }}
+                      >
+                        <CustomDropdown
+                          value={selectedValueNombreTienda}
+                          placeholder="Tiendas"
+                          setValue={setSelectedValueNombreTienda}
+                          items={dropdownItems}
+                        />
+                      </View>
+                    )}
                   <View
                     style={{
                       width: "100%",
@@ -1928,8 +1931,8 @@ export default function EnMyTiendaView() {
                   ? "Modificar Producto"
                   : modalProductsDates?.isAddProductoShowProveedoresTiendas ??
                     false
-                  ? "Datos del Producto"
-                  : "Agregar Producto"}
+                    ? "Datos del Producto"
+                    : "Agregar Producto"}
               </Text>
 
               {/* ScrollView para permitir el desplazamiento del contenido */}
@@ -2100,105 +2103,105 @@ export default function EnMyTiendaView() {
                 {modalProductsDates?.isModificarProducto
                   ? false
                   : (modalProductsDates?.isAddProductoShowProveedoresTiendas ??
-                      false) && (
+                    false) && (
+                    <View
+                      style={{
+                        width: "100%",
+                        justifyContent: "space-between", // Para separar los campos de forma uniforme
+                        alignItems: "center",
+                        flexDirection: "row",
+                        paddingHorizontal: 10,
+                      }}
+                    >
+                      {/* Campo Precio en CUP*/}
+                      <View style={{ width: "45%", marginLeft: "2%" }}>
+                        <Text style={styles.labelTextModalDesktop}>
+                          Precio en CUP
+                        </Text>
+                        <CustomTextImputSearch
+                          style={styles.textImputModal}
+                          value={(
+                            parseFloat(precioProductoDetails) * cambioMoneda
+                          ).toFixed(0)}
+                          cursorColor={Colors.azul_Oscuro}
+                          editable={false}
+                          placeholder="Precio en CUP"
+                        />
+                      </View>
+
+                      {/* Campo SKU*/}
                       <View
                         style={{
-                          width: "100%",
-                          justifyContent: "space-between", // Para separar los campos de forma uniforme
-                          alignItems: "center",
-                          flexDirection: "row",
-                          paddingHorizontal: 10,
+                          width: "45%",
+                          marginLeft: "2%",
+                          marginRight: "2%",
                         }}
                       >
-                        {/* Campo Precio en CUP*/}
-                        <View style={{ width: "45%", marginLeft: "2%" }}>
-                          <Text style={styles.labelTextModalDesktop}>
-                            Precio en CUP
-                          </Text>
-                          <CustomTextImputSearch
-                            style={styles.textImputModal}
-                            value={(
-                              parseFloat(precioProductoDetails) * cambioMoneda
-                            ).toFixed(0)}
-                            cursorColor={Colors.azul_Oscuro}
-                            editable={false}
-                            placeholder="Precio en CUP"
-                          />
-                        </View>
-
-                        {/* Campo SKU*/}
-                        <View
-                          style={{
-                            width: "45%",
-                            marginLeft: "2%",
-                            marginRight: "2%",
-                          }}
-                        >
-                          <Text style={styles.labelTextModalDesktop}>Sku</Text>
-                          <CustomTextImputSearch
-                            style={styles.textImputModal}
-                            value={skuDetails}
-                            onChangeText={setSkuDetails}
-                            cursorColor={Colors.azul_Oscuro}
-                            editable={
-                              modalProductsDates?.fileEditable ? true : false
-                            }
-                            placeholder="Sku"
-                          />
-                        </View>
+                        <Text style={styles.labelTextModalDesktop}>Sku</Text>
+                        <CustomTextImputSearch
+                          style={styles.textImputModal}
+                          value={skuDetails}
+                          onChangeText={setSkuDetails}
+                          cursorColor={Colors.azul_Oscuro}
+                          editable={
+                            modalProductsDates?.fileEditable ? true : false
+                          }
+                          placeholder="Sku"
+                        />
                       </View>
-                    )}
+                    </View>
+                  )}
 
                 {modalProductsDates?.isModificarProducto
                   ? false
                   : (modalProductsDates?.isAddProductoShowProveedoresTiendas ??
-                      false) && (
+                    false) && (
+                    <View
+                      style={{
+                        borderColor: Colors.azul_Oscuro,
+                        borderWidth: 2,
+                        marginTop: "3%",
+                        borderRadius: 15,
+                        flexDirection: "row",
+                        height: 350,
+                        width: "90%",
+                      }}
+                    >
                       <View
                         style={{
-                          borderColor: Colors.azul_Oscuro,
-                          borderWidth: 2,
-                          marginTop: "3%",
-                          borderRadius: 15,
-                          flexDirection: "row",
-                          height: 350,
-                          width: "90%",
+                          flexDirection: "column",
+                          height: 340,
+                          width: "45%",
                         }}
                       >
-                        <View
-                          style={{
-                            flexDirection: "column",
-                            height: 340,
-                            width: "45%",
-                          }}
-                        >
-                          <Text style={styles.labelTextModalMovil}>
-                            Tiendas en las que existe el producto
-                          </Text>
-                          <MyDateTableModalShowDatesTienda
-                            columns={columnasMyDateTableTiendaModal}
-                            items={tiendasByProducto}
-                          />
-                        </View>
-                        {(modalProductsDates?.isAddProductoShowProveedores ??
-                          false) &&
-                          isPermisoHistorialDeProveedores && (
-                            <View
-                              style={{
-                                height: 340,
-                                width: "45%",
-                              }}
-                            >
-                              <Text style={styles.labelTextModalMovil}>
-                                Historial de proveedores
-                              </Text>
-                              <MyDateTableModalShowDateProveedores
-                                columns={columnasMyDateTableProveedorModal}
-                                items={proveedorByProducto}
-                              />
-                            </View>
-                          )}
+                        <Text style={styles.labelTextModalMovil}>
+                          Tiendas en las que existe el producto
+                        </Text>
+                        <MyDateTableModalShowDatesTienda
+                          columns={columnasMyDateTableTiendaModal}
+                          items={tiendasByProducto}
+                        />
                       </View>
-                    )}
+                      {(modalProductsDates?.isAddProductoShowProveedores ??
+                        false) &&
+                        isPermisoHistorialDeProveedores && (
+                          <View
+                            style={{
+                              height: 340,
+                              width: "45%",
+                            }}
+                          >
+                            <Text style={styles.labelTextModalMovil}>
+                              Historial de proveedores
+                            </Text>
+                            <MyDateTableModalShowDateProveedores
+                              columns={columnasMyDateTableProveedorModal}
+                              items={proveedorByProducto}
+                            />
+                          </View>
+                        )}
+                    </View>
+                  )}
 
                 {/* Descripción */}
                 <Text
@@ -2563,7 +2566,7 @@ export default function EnMyTiendaView() {
                       items={dropdownItemsNombreTienda}
                       readOnly={!false}
                       searchable={true}
-                      onDropdownOpen={() => {}}
+                      onDropdownOpen={() => { }}
                     />
                   </View>
 
@@ -2610,7 +2613,7 @@ export default function EnMyTiendaView() {
                       items={dropdownItemsNombreproducto}
                       searchable={true}
                       readOnly={!false}
-                      onDropdownOpen={() => {}}
+                      onDropdownOpen={() => { }}
                     />
                   </View>
                 )}
@@ -2693,7 +2696,7 @@ export default function EnMyTiendaView() {
                           parseInt(idTipoServicioDetails) === 2
                             ? false
                             : isPermisoModificarServicio ||
-                              isPermisoServicioLocal
+                            isPermisoServicioLocal
                         }
                         placeholder="Costo Promedio"
                       />
@@ -2740,7 +2743,7 @@ export default function EnMyTiendaView() {
                           parseInt(idTipoServicioDetails) === 2
                             ? false
                             : isPermisoModificarServicio ||
-                              isPermisoServicioLocal
+                            isPermisoServicioLocal
                         }
                         placeholder="Costo Promedio"
                       />
@@ -2869,7 +2872,7 @@ export default function EnMyTiendaView() {
                         onYearChange={setFechaAnnoDetails}
                         style={{ margin: 20 }}
                         styleText={styles.labelTextModalDesktop}
-                        onDropdownOpen={() => {}}
+                        onDropdownOpen={() => { }}
                         isReadOnly={
                           !(
                             isPermisoModificarServicio || isPermisoServicioLocal
@@ -3663,8 +3666,8 @@ export default function EnMyTiendaView() {
               style={[
                 styles.radioButtonTextDesktop,
                 sortProductos?.criterioOrden === "option1" &&
-                  styles.radioButtonSelected &&
-                  styles.radioButtonTextSelected,
+                styles.radioButtonSelected &&
+                styles.radioButtonTextSelected,
               ]}
             >
               Exportar a Excel
@@ -3758,25 +3761,28 @@ export default function EnMyTiendaView() {
             </View>
 
             {(String(usuario?.id_rol) === "2" ||
-              String(usuario?.id_rol) === "1") && (
-              <View style={styles.separatorBlanco} />
-            )}
+              String(usuario?.id_rol) === "1" ||
+              String(usuario?.id_rol) === "3") && (
+                <View style={styles.separatorBlanco} />
+              )}
 
             {(String(usuario?.id_rol) === "2" ||
-              String(usuario?.id_rol) === "1") && (
-              <Text style={styles.textSearchDesktop}>Cambiar de Tienda:</Text>
-            )}
+              String(usuario?.id_rol) === "1" ||
+              String(usuario?.id_rol) === "3") && (
+                <Text style={styles.textSearchDesktop}>Cambiar de Tienda:</Text>
+              )}
             {(String(usuario?.id_rol) === "2" ||
-              String(usuario?.id_rol) === "1") && (
-              <View style={{ position: "relative", zIndex: 500, height: 100 }}>
-                <CustomDropdown
-                  value={selectedValueNombreTienda}
-                  placeholder="Tiendas"
-                  setValue={setSelectedValueNombreTienda}
-                  items={dropdownItems}
-                />
-              </View>
-            )}
+              String(usuario?.id_rol) === "1" ||
+              String(usuario?.id_rol) === "3") && (
+                <View style={{ position: "relative", zIndex: 500, height: 100 }}>
+                  <CustomDropdown
+                    value={selectedValueNombreTienda}
+                    placeholder="Tiendas"
+                    setValue={setSelectedValueNombreTienda}
+                    items={dropdownItems}
+                  />
+                </View>
+              )}
             <View
               style={{ width: "100%", flexDirection: "row", marginTop: 25 }}
             >
@@ -3935,8 +3941,8 @@ export default function EnMyTiendaView() {
                   ? "Modificar Producto"
                   : modalProductsDates?.isAddProductoShowProveedoresTiendas ??
                     false
-                  ? "Datos del Producto"
-                  : "Agregar Producto"}
+                    ? "Datos del Producto"
+                    : "Agregar Producto"}
               </Text>
 
               {/* ScrollView para permitir el desplazamiento del contenido */}
@@ -4106,92 +4112,92 @@ export default function EnMyTiendaView() {
                 {modalProductsDates?.isModificarProducto
                   ? false
                   : (modalProductsDates?.isAddProductoShowProveedoresTiendas ??
-                      false) && (
+                    false) && (
+                    <View
+                      style={{
+                        width: "100%",
+                        justifyContent: "space-between", // Para separar los campos de forma uniforme
+                        alignItems: "center",
+                        flexDirection: "row",
+                        paddingHorizontal: 10,
+                      }}
+                    >
+                      {/* Campo Precio en CUP*/}
+                      <View style={{ width: "45%", marginLeft: "2%" }}></View>
+
+                      {/* Campo Precio de Empresa en CUP*/}
                       <View
                         style={{
-                          width: "100%",
-                          justifyContent: "space-between", // Para separar los campos de forma uniforme
-                          alignItems: "center",
-                          flexDirection: "row",
-                          paddingHorizontal: 10,
+                          width: "45%",
+                          marginLeft: "2%",
+                          marginRight: "2%",
                         }}
                       >
-                        {/* Campo Precio en CUP*/}
-                        <View style={{ width: "45%", marginLeft: "2%" }}></View>
-
-                        {/* Campo Precio de Empresa en CUP*/}
-                        <View
-                          style={{
-                            width: "45%",
-                            marginLeft: "2%",
-                            marginRight: "2%",
-                          }}
-                        >
-                          <Text style={styles.labelTextModalDesktop}>Sku</Text>
-                          <CustomTextImputSearch
-                            style={styles.textImputModal}
-                            value={skuDetails}
-                            onChangeText={setSkuDetails}
-                            cursorColor={Colors.azul_Oscuro}
-                            editable={
-                              modalProductsDates?.fileEditable ? true : false
-                            }
-                            placeholder="Sku"
-                          />
-                        </View>
+                        <Text style={styles.labelTextModalDesktop}>Sku</Text>
+                        <CustomTextImputSearch
+                          style={styles.textImputModal}
+                          value={skuDetails}
+                          onChangeText={setSkuDetails}
+                          cursorColor={Colors.azul_Oscuro}
+                          editable={
+                            modalProductsDates?.fileEditable ? true : false
+                          }
+                          placeholder="Sku"
+                        />
                       </View>
-                    )}
+                    </View>
+                  )}
 
                 {modalProductsDates?.isModificarProducto
                   ? false
                   : (modalProductsDates?.isAddProductoShowProveedoresTiendas ??
-                      false) && (
+                    false) && (
+                    <View
+                      style={{
+                        borderColor: Colors.azul_Oscuro,
+                        borderWidth: 2,
+                        marginTop: "3%",
+                        borderRadius: 15,
+                        flexDirection: "row",
+                        height: 350,
+                        width: "90%",
+                      }}
+                    >
                       <View
                         style={{
-                          borderColor: Colors.azul_Oscuro,
-                          borderWidth: 2,
-                          marginTop: "3%",
-                          borderRadius: 15,
-                          flexDirection: "row",
+                          flexDirection: "column",
                           height: 350,
-                          width: "90%",
+                          width: "50%",
                         }}
                       >
-                        <View
-                          style={{
-                            flexDirection: "column",
-                            height: 350,
-                            width: "50%",
-                          }}
-                        >
-                          <Text style={styles.labelTextModalDesktop}>
-                            Tiendas en las que existe el producto
-                          </Text>
-                          <MyDateTableModalShowDatesTienda
-                            columns={columnasMyDateTableTiendaModal}
-                            items={tiendasByProducto}
-                          />
-                        </View>
-                        {(modalProductsDates?.isAddProductoShowProveedores ??
-                          false) &&
-                          isPermisoHistorialDeProveedores && (
-                            <View
-                              style={{
-                                height: 350,
-                                width: "50%",
-                              }}
-                            >
-                              <Text style={styles.labelTextModalDesktop}>
-                                Historial de proveedores
-                              </Text>
-                              <MyDateTableModalShowDateProveedores
-                                columns={columnasMyDateTableProveedorModal}
-                                items={proveedorByProducto}
-                              />
-                            </View>
-                          )}
+                        <Text style={styles.labelTextModalDesktop}>
+                          Tiendas en las que existe el producto
+                        </Text>
+                        <MyDateTableModalShowDatesTienda
+                          columns={columnasMyDateTableTiendaModal}
+                          items={tiendasByProducto}
+                        />
                       </View>
-                    )}
+                      {(modalProductsDates?.isAddProductoShowProveedores ??
+                        false) &&
+                        isPermisoHistorialDeProveedores && (
+                          <View
+                            style={{
+                              height: 350,
+                              width: "50%",
+                            }}
+                          >
+                            <Text style={styles.labelTextModalDesktop}>
+                              Historial de proveedores
+                            </Text>
+                            <MyDateTableModalShowDateProveedores
+                              columns={columnasMyDateTableProveedorModal}
+                              items={proveedorByProducto}
+                            />
+                          </View>
+                        )}
+                    </View>
+                  )}
 
                 {/* Descripción */}
                 <Text

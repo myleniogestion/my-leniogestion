@@ -1585,10 +1585,12 @@ export default function EntradasView() {
                           textShadowOffset: { width: 1, height: 1 }, // Desplazamiento de la sombra
                           textShadowRadius: 2, // Difuminado de la sombra
                         }}
-                        onPress={() => {
-                          filtrarYOrdenarProductos();
-                          setIsExpanded(false);
-                        }}
+                        onPress={() =>
+                          filtrarYOrdenarEntradas(
+                            `${fechaAnnoDesdeSearch}-${fechaMesDesdeSearch}-${fechaDiaDesdeSearch}`,
+                            `${fechaAnnoHastaSearch}-${fechaMesHastaSearch}-${fechaDiaHastaSearch}`
+                          )
+                        }
                       >
                         Buscar
                       </Text>
